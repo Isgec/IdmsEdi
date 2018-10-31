@@ -1,0 +1,74 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+JobProcess
+</name>
+</assembly>
+<members>
+<member name="T:JobProcess.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:JobProcess.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:JobProcess.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="T:JobProcess.ConnectToNetworkFunctions">
+ <summary>
+ Several functions to connect to a network (with username and password) an copy a file on there.
+ Note that you have to choose a network-drive-letter (e.g.: X:)
+ </summary>
+ <remarks>It's just a little bit of code, there are no error handlers. A CMD is needed. Maybe later I'll build up this dll.</remarks>
+</member>
+<member name="M:JobProcess.ConnectToNetworkFunctions.connectToNetwork(System.String,System.String)">
+ <summary>
+ Connects the system to a network drive and waits until the system is connected
+ </summary>
+ <param name="serverString">UNC Path to servershare (e.g.: "\\mySystem\c$\temp\")</param>
+ <param name="driveLetter">Local driveletter for temporary connection (e.g.: "X:")</param>
+ <returns>True if connection establisht, otherwise false</returns>
+ <remarks></remarks>
+</member>
+<member name="M:JobProcess.ConnectToNetworkFunctions.connectToNetwork(System.String,System.String,System.String,System.String)">
+ <summary>
+ Connects the system to a network drive and waits until the system is connected
+ </summary>
+ <param name="serverString">UNC Path to servershare (e.g.: "\\mySystem\c$\temp\")</param>
+ <param name="driveLetter">Local driveletter for temporary connection (e.g.: "X:")</param>
+ <param name="username">Username on the remote share (e.g.: "Adminstrator")</param>
+ <param name="password">Password for the user (e.g.: "123456")</param>
+ <returns>True if connection establisht, otherwise false</returns>
+ <remarks></remarks>
+</member>
+<member name="M:JobProcess.ConnectToNetworkFunctions.disconnectFromNetwork(System.String)">
+ <summary>
+ Disconnects the system from a network drive, that was initialited before by connectToNetwork
+ </summary>
+ <param name="driveLetter">Driveletter to disconnect (e.g.: "X:")</param>
+ <returns>True if connection closed, otherwise false</returns>
+ <remarks></remarks>
+</member>
+<member name="M:JobProcess.ConnectToNetworkFunctions.copyFileToSecurityNetworkShare(System.String,System.String,System.String,System.String,System.String,System.String)">
+ <summary>
+ Copy a file onto a remote share with password security. All parameters are needed! After the copy is done, the connection will be disconnected
+ </summary>
+ <param name="sourceFilePath">Path to the source file you want to copy (e.g.: "C:\Temp\Testfile.doc")</param>
+ <param name="remoteFileName">Filename on the remote computer (e.g.: "TestfileCopy.doc")</param>
+ <param name="serverString">UNC Path to servershare (e.g.: "\\mySystem\c$\temp\")</param>
+ <param name="driveLetter">Local driveletter for temporary connection (e.g.: "X:")</param>
+ <param name="username">Username on the remote share (e.g.: "Adminstrator")</param>
+ <param name="password">Password for the user (e.g.: "123456")</param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+</members>
+</doc>

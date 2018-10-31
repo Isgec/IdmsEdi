@@ -1,0 +1,9 @@
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\bin\Debug\cadConvert1.dll
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\bin\Debug\cadConvert1.pdb
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\bin\Debug\cadConvert1.xml
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\obj\Debug\cadConvert1.Resources.resources
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\obj\Debug\cadConvert1.vbproj.GenerateResource.Cache
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\obj\Debug\cadConvert1.dll
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\obj\Debug\cadConvert1.xml
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\obj\Debug\cadConvert1.pdb
+C:\Data\Projects15.NET\BomExportEDI\cadConvert1\obj\Debug\cadConvert1.vbprojResolveAssemblyReference.cache

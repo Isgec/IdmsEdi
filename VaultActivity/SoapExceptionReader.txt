@@ -1,0 +1,4064 @@
+﻿namespace ExportBOMJobProcessor
+{
+    using System;
+    using System.IO;
+
+    public class SoapExceptionReader
+    {
+        private static void CreateErrorCode()
+        {
+            string[] strArray = File.ReadAllLines(@"D:\ISGEC\VaultErrorCode.csv");
+            WriteCodeLine("switch (errorCode)");
+            WriteCodeLine("{");
+            foreach (string str in strArray)
+            {
+                string[] strArray2 = str.Split(new char[] { ',' });
+                if (strArray2.Length > 2)
+                {
+                    WriteCodeLine("case \"" + strArray2[0] + "\":");
+                    WriteCodeLine("errorName = \"" + strArray2[1] + "\";");
+                    WriteCodeLine("errorDescription = \"" + strArray2[2] + "\";");
+                    WriteCodeLine("break;");
+                }
+            }
+            WriteCodeLine("}");
+        }
+
+        public static void GetErrorDetails(string errorCode, ref string errorName, ref string errorDescription)
+        {
+            switch (errorCode)
+            {
+                case "0":
+                    errorName = "UnspecifiedSystemException";
+                    errorDescription = "Used when the error code is invalid.";
+                    return;
+
+                case "100":
+                    errorName = "CreateKnowledgeVaultDatabase";
+                    errorDescription = "Error creating the knowledge vault.";
+                    return;
+
+                case "102":
+                    errorName = "DatabaseExists";
+                    errorDescription = "Database already exists.";
+                    return;
+
+                case "106":
+                    errorName = "TransactionInvalidPrincipal";
+                    errorDescription = "An example would be making a call without being logged into a vault for methods that require a vault";
+                    return;
+
+                case "108":
+                    errorName = "TransactionManagementError";
+                    errorDescription = "Cannot create database connection and/or transaction";
+                    return;
+
+                case "109":
+                    errorName = "DatabaseError";
+                    errorDescription = "Generic error for unexpected database issues.";
+                    return;
+
+                case "111":
+                    errorName = "BadResourceRelativePath";
+                    errorDescription = "General error for failures to store or access a resource in the file store";
+                    return;
+
+                case "114":
+                    errorName = "CreateSystemMasterDatabase";
+                    errorDescription = "could not create KnowledgeVaultMaster Database";
+                    return;
+
+                case "130":
+                    errorName = "UnknownVersion";
+                    errorDescription = "Unable to determine the version of a KnowledgeVault or Master";
+                    return;
+
+                case "131":
+                    errorName = "InvalidAdminDbLogin";
+                    errorDescription = "The database admin login is invalid";
+                    return;
+
+                case "132":
+                    errorName = "DirectoryNotEmpty";
+                    errorDescription = "The directory is not empty";
+                    return;
+
+                case "133":
+                    errorName = "KnowledgeVaultDoesNotExist";
+                    errorDescription = "The Knowledge Vault referenced doesn't exist";
+                    return;
+
+                case "134":
+                    errorName = "KnowledgeVaultsAttached";
+                    errorDescription = "There are Knowledge Vaults still attached.";
+                    return;
+
+                case "137":
+                    errorName = "IllegalInputParam";
+                    errorDescription = "One of the inputs to the service call is incorrect.";
+                    return;
+
+                case "138":
+                    errorName = "IllegalDatabaseName";
+                    errorDescription = "Database name is not allowed. Most likely due to illegal characters.";
+                    return;
+
+                case "139":
+                    errorName = "IllegalPath";
+                    errorDescription = "Specified folder is illegal.";
+                    return;
+
+                case "140":
+                    errorName = "DuplicatePath";
+                    errorDescription = "Specified folder is already in use.";
+                    return;
+
+                case "143":
+                    errorName = "UserAlreadyExists";
+                    errorDescription = "Duplicate User Name";
+                    return;
+
+                case "144":
+                    errorName = "DbFileAlreadyExists";
+                    errorDescription = "Database error because an MDF or LDF file with that name already exists.";
+                    return;
+
+                case "146":
+                    errorName = "MigrationPathNotFound";
+                    errorDescription = "Cannot determine the migration steps.";
+                    return;
+
+                case "147":
+                    errorName = "PathTooLong";
+                    errorDescription = "The specified path is too long.";
+                    return;
+
+                case "148":
+                    errorName = "UnsupportedProduct";
+                    errorDescription = "The vault has a product installed that is not installed on the server";
+                    return;
+
+                case "150":
+                    errorName = "KnowledgeVaultMasterDoesNotExist";
+                    errorDescription = "The KnowledgeVaultMaster referenced doesn't exist";
+                    return;
+
+                case "152":
+                    errorName = "IllegalRestoreDBLocation";
+                    errorDescription = "Cannot restore db files to a remote location";
+                    return;
+
+                case "153":
+                    errorName = "InvalidBackupDirectory";
+                    errorDescription = "Selected directory does not contain a valid backup structure.";
+                    return;
+
+                case "154":
+                    errorName = "InvalidUserId";
+                    errorDescription = "The user ID is not valid";
+                    return;
+
+                case "155":
+                    errorName = "IllegalNullParam";
+                    errorDescription = "A null value was passed in where a null value is not allowed.";
+                    return;
+
+                case "157":
+                    errorName = "AdministratorCannotBeRemoved";
+                    errorDescription = "";
+                    return;
+
+                case "158":
+                    errorName = "CircularReference";
+                    errorDescription = "";
+                    return;
+
+                case "160":
+                    errorName = "BadId";
+                    errorDescription = "";
+                    return;
+
+                case "164":
+                    errorName = "MigrationXmlError";
+                    errorDescription = "migrations.xml identifies the .sql scripts and C# code that need to be executed for the different migration paths (e.g., R2 to R3, etc.)";
+                    return;
+
+                case "165":
+                    errorName = "KnowledgeLibraryDoesNotExist";
+                    errorDescription = "Occurs during restore - also see KnowledgeVaultDoesNotExist:133)";
+                    return;
+
+                case "167":
+                    errorName = "AttachWrongDatabaseType";
+                    errorDescription = "";
+                    return;
+
+                case "171":
+                    errorName = "DuplicateLibraryGuid";
+                    errorDescription = "There is already a KnowledgeLibrary with the same GUID";
+                    return;
+
+                case "173":
+                    errorName = "ReadOnlyFile";
+                    errorDescription = "Trying to perform a write operation on a read-only file";
+                    return;
+
+                case "174":
+                    errorName = "InvalidDatabaseCollation";
+                    errorDescription = "Trying to create a KVM with an invalid database collation (eg case sensitive)";
+                    return;
+
+                case "175":
+                    errorName = "InsufficientFilePermissions";
+                    errorDescription = "The user {1} does not have permission to the path {0}";
+                    return;
+
+                case "176":
+                    errorName = "GroupDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "179":
+                    errorName = "IOError";
+                    errorDescription = "IOException has been thrown. IOException.Message={0}";
+                    return;
+
+                case "180":
+                    errorName = "FileDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "185":
+                    errorName = "IncrementTurnedOff";
+                    errorDescription = "";
+                    return;
+
+                case "186":
+                    errorName = "IncRestoreInEligibleForAdminDataDirty";
+                    errorDescription = "";
+                    return;
+
+                case "187":
+                    errorName = "IncRestoreInEligibleForUserDataDirty";
+                    errorDescription = "";
+                    return;
+
+                case "188":
+                    errorName = "IncRestoreInEligibleForBadStateId";
+                    errorDescription = "";
+                    return;
+
+                case "189":
+                    errorName = "IncBackupInEligibleForAdminDataDirty";
+                    errorDescription = "";
+                    return;
+
+                case "190":
+                    errorName = "IncBackupInEligibleForUserDataNotdirty";
+                    errorDescription = "";
+                    return;
+
+                case "191":
+                    errorName = "IncBackupInEligibleForFullBackupUndone";
+                    errorDescription = "";
+                    return;
+
+                case "192":
+                    errorName = "MissingBackupPackages";
+                    errorDescription = "";
+                    return;
+
+                case "193":
+                    errorName = "ContentfileWrongFormatted";
+                    errorDescription = "";
+                    return;
+
+                case "194":
+                    errorName = "IncRestoreInEligibleForWrongIncrement";
+                    errorDescription = "";
+                    return;
+
+                case "196":
+                    errorName = "LibraryPartitionDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "197":
+                    errorName = "LibraryPartitionUpdateDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "198":
+                    errorName = "DatabaseServerNotCompatible";
+                    errorDescription = "";
+                    return;
+
+                case "199":
+                    errorName = "SystemTypeNotEditable";
+                    errorDescription = "";
+                    return;
+
+                case "200":
+                    errorName = "NonmemberSite";
+                    errorDescription = "";
+                    return;
+
+                case "201":
+                    errorName = "DatabaseLocked";
+                    errorDescription = "{0} is the name of the locking operation. {1} [currently unused] is the name of the database";
+                    return;
+
+                case "204":
+                    errorName = "InvalidSiteName";
+                    errorDescription = "";
+                    return;
+
+                case "205":
+                    errorName = "CouldNotReplicate";
+                    errorDescription = "";
+                    return;
+
+                case "207":
+                    errorName = "NoFilestore";
+                    errorDescription = "";
+                    return;
+
+                case "208":
+                    errorName = "InvalidVaultSite";
+                    errorDescription = "";
+                    return;
+
+                case "211":
+                    errorName = "VaultDisabled";
+                    errorDescription = "";
+                    return;
+
+                case "212":
+                    errorName = "FileStoreMismatch";
+                    errorDescription = "There is a sentinal file with a vaultguid in the root of the filestore. This value needs to match the guid identity of the vault";
+                    return;
+
+                case "213":
+                    errorName = "OrphanedMetaData";
+                    errorDescription = "";
+                    return;
+
+                case "214":
+                    errorName = "RoleDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "215":
+                    errorName = "InvalidSystemDbLogin";
+                    errorDescription = "The system user [vaultsys] either doesn't exist or doesn't match the web.config password";
+                    return;
+
+                case "216":
+                    errorName = "GroupAlreadyExists";
+                    errorDescription = "Duplicate Group Name";
+                    return;
+
+                case "217":
+                    errorName = "DuplicateVaultGuid";
+                    errorDescription = "";
+                    return;
+
+                case "222":
+                    errorName = "ChecksumValidationFailure";
+                    errorDescription = "";
+                    return;
+
+                case "223":
+                    errorName = "RestoringUnsupportedProducts";
+                    errorDescription = "Restore failed due to product difference between the server and the backup. ";
+                    return;
+
+                case "224":
+                    errorName = "InvalidServiceExtensionConfig";
+                    errorDescription = "At least one type or method referenced in the ServiceExtenstions.xml file could not be resolved.";
+                    return;
+
+                case "226":
+                    errorName = "LuceneSearchError";
+                    errorDescription = "Wrap any errors thrown by Lucene when searching.";
+                    return;
+
+                case "227":
+                    errorName = "LuceneIndexingError";
+                    errorDescription = "Wrap any errors thrown by Lucene when indexing.";
+                    return;
+
+                case "228":
+                    errorName = "InvalidServiceExtensionMethod";
+                    errorDescription = "Wrap any errors thrown when invoking a service extension method.";
+                    return;
+
+                case "230":
+                    errorName = "PropertyParsingFailed";
+                    errorDescription = "Search failed to parse a property value.";
+                    return;
+
+                case "231":
+                    errorName = "DatabaseDeadlock";
+                    errorDescription = "Generic error for unexpected database issues.";
+                    return;
+
+                case "232":
+                    errorName = "ConfigurationError";
+                    errorDescription = "Error occurred calling a config section handler";
+                    return;
+
+                case "233":
+                    errorName = "DatabaseLogFull";
+                    errorDescription = "";
+                    return;
+
+                case "234":
+                    errorName = "ArraysOfDifferentSizes";
+                    errorDescription = "Input arrays were of different lengths.";
+                    return;
+
+                case "236":
+                    errorName = "UnsupportedParameterType";
+                    errorDescription = "";
+                    return;
+
+                case "237":
+                    errorName = "DuplicateQueuedEvent";
+                    errorDescription = "";
+                    return;
+
+                case "238":
+                    errorName = "InvalidEventClass";
+                    errorDescription = "";
+                    return;
+
+                case "239":
+                    errorName = "UnreserveEventFailed";
+                    errorDescription = "";
+                    return;
+
+                case "240":
+                    errorName = "JobQueueDisabled";
+                    errorDescription = "";
+                    return;
+
+                case "241":
+                    errorName = "UnsupportedOperation";
+                    errorDescription = "";
+                    return;
+
+                case "242":
+                    errorName = "DuplicatePropertiesCannotBeToSamePropertyDef";
+                    errorDescription = "";
+                    return;
+
+                case "243":
+                    errorName = "PropertiesCannotHaveTheSamePriority";
+                    errorDescription = "";
+                    return;
+
+                case "244":
+                    errorName = "FailedToLoadPropertyProviderForProp";
+                    errorDescription = "";
+                    return;
+
+                case "245":
+                    errorName = "InvalidPropertyForPropertyProvider";
+                    errorDescription = "";
+                    return;
+
+                case "246":
+                    errorName = "IncompatiblePropertyDataTypes";
+                    errorDescription = "";
+                    return;
+
+                case "247":
+                    errorName = "CannotCreateNewForProperty";
+                    errorDescription = "";
+                    return;
+
+                case "248":
+                    errorName = "PropertyDoesNotSupportMappingDir";
+                    errorDescription = "";
+                    return;
+
+                case "249":
+                    errorName = "InvalidEntityClassId";
+                    errorDescription = "";
+                    return;
+
+                case "250":
+                    errorName = "CannotFindPropertyDefBySystemName";
+                    errorDescription = "";
+                    return;
+
+                case "251":
+                    errorName = "CannotCreatePropertyDef";
+                    errorDescription = "";
+                    return;
+
+                case "252":
+                    errorName = "CannotCreatePropertyDef_DisplayNameExists";
+                    errorDescription = "";
+                    return;
+
+                case "253":
+                    errorName = "PropertyDefIdDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "255":
+                    errorName = "PropertyDefIsNotMappedToEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "256":
+                    errorName = "SystemPropertyDefsCannotChangeThierEnitityClassMappings";
+                    errorDescription = "";
+                    return;
+
+                case "257":
+                    errorName = "CannotDeleteMappingsWhichAreInUseByEnts";
+                    errorDescription = "";
+                    return;
+
+                case "258":
+                    errorName = "PropertyDefDisplayNameExist";
+                    errorDescription = "";
+                    return;
+
+                case "259":
+                    errorName = "ContentSourcePropertyDefIdDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "260":
+                    errorName = "SystemPropertyDefsCannotBeDeleted";
+                    errorDescription = "";
+                    return;
+
+                case "261":
+                    errorName = "PropertyDefsCannotBeDeletedWithEntityRefs";
+                    errorDescription = "";
+                    return;
+
+                case "262":
+                    errorName = "CtntSrcPropProviderNotFound";
+                    errorDescription = "";
+                    return;
+
+                case "263":
+                    errorName = "BadNumberingSchemeId";
+                    errorDescription = "";
+                    return;
+
+                case "264":
+                    errorName = "NumberingSchemeIsDefault";
+                    errorDescription = "";
+                    return;
+
+                case "265":
+                    errorName = "DuplicateNumberSchemeName";
+                    errorDescription = "";
+                    return;
+
+                case "266":
+                    errorName = "NumberingSchemeInUse";
+                    errorDescription = "";
+                    return;
+
+                case "267":
+                    errorName = "LastNumberingSchemeCannotBeRemoved";
+                    errorDescription = "";
+                    return;
+
+                case "268":
+                    errorName = "GetNumberingSchemesBySchemeStatusFailed";
+                    errorDescription = "";
+                    return;
+
+                case "269":
+                    errorName = "ActivateNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "270":
+                    errorName = "DeactivateNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "271":
+                    errorName = "SetDefaultNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "272":
+                    errorName = "AddNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "273":
+                    errorName = "UpdateNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "274":
+                    errorName = "DeleteNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "275":
+                    errorName = "DeleteNumberingSchemeUnconditionalFailed";
+                    errorDescription = "";
+                    return;
+
+                case "276":
+                    errorName = "MethodNotSupportedWithBaseVaultServer";
+                    errorDescription = "";
+                    return;
+
+                case "277":
+                    errorName = "PropertyDefRequiresEntityClassMapping";
+                    errorDescription = "";
+                    return;
+
+                case "278":
+                    errorName = "PropertyDefDefaultValuesNotSupported";
+                    errorDescription = "";
+                    return;
+
+                case "279":
+                    errorName = "InvalidEntityClassName";
+                    errorDescription = "";
+                    return;
+
+                case "280":
+                    errorName = "OnlyReadMappingsSupported";
+                    errorDescription = "";
+                    return;
+
+                case "281":
+                    errorName = "CreateNewPropertyMappingsNotSupported";
+                    errorDescription = "";
+                    return;
+
+                case "283":
+                    errorName = "BadEntityId";
+                    errorDescription = "";
+                    return;
+
+                case "284":
+                    errorName = "EntityClassDoesNotSupportMapping";
+                    errorDescription = "";
+                    return;
+
+                case "285":
+                    errorName = "EntityClassDoesNotSupportMappingToCSType";
+                    errorDescription = "";
+                    return;
+
+                case "286":
+                    errorName = "MigrationInProgress";
+                    errorDescription = "";
+                    return;
+
+                case "287":
+                    errorName = "EntityClassDoesNotSupportLinks";
+                    errorDescription = "";
+                    return;
+
+                case "288":
+                    errorName = "AddLinkFailed";
+                    errorDescription = "";
+                    return;
+
+                case "289":
+                    errorName = "CreateNewAndDefaultMappingTypeNotSupported";
+                    errorDescription = "";
+                    return;
+
+                case "290":
+                    errorName = "UserDefinedPropertyListValuesNotSupported";
+                    errorDescription = "";
+                    return;
+
+                case "291":
+                    errorName = "UserDefinedPropertyConstraintsNotSupported";
+                    errorDescription = "";
+                    return;
+
+                case "292":
+                    errorName = "UserDefinedPropertyWithoutCSMappingsNotSupported";
+                    errorDescription = "";
+                    return;
+
+                case "293":
+                    errorName = "UserDefinedPropertyInitialValuesNotSupported";
+                    errorDescription = "";
+                    return;
+
+                case "294":
+                    errorName = "LegacyOperationBlocked";
+                    errorDescription = "This error means that an older client is communicating with a new server and the newer server no longer supports the legacy operation.";
+                    return;
+
+                case "296":
+                    errorName = "DatabaseCopyFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "297":
+                    errorName = "DatabaseOffline";
+                    errorDescription = "";
+                    return;
+
+                case "299":
+                    errorName = "CannotUnzip";
+                    errorDescription = "";
+                    return;
+
+                case "300":
+                    errorName = "BadAuthenticationToken";
+                    errorDescription = "This can happen when the web services are restarted.";
+                    return;
+
+                case "301":
+                    errorName = "InvalidUserPassword";
+                    errorDescription = "Username and/or Password is invalid, so user cannot be authenticated.";
+                    return;
+
+                case "302":
+                    errorName = "UserNotVaultMember";
+                    errorDescription = "User is not a member of the vault";
+                    return;
+
+                case "303":
+                    errorName = "PermissionDenied";
+                    errorDescription = "Invalid permissions for transaction";
+                    return;
+
+                case "304":
+                    errorName = "UserIsDisabled";
+                    errorDescription = "User is disabled";
+                    return;
+
+                case "306":
+                    errorName = "IncompatibleKnowledgeVault";
+                    errorDescription = "The compatibility of the Vault doesn't match the server version";
+                    return;
+
+                case "307":
+                    errorName = "IncompatibleKnowledgeMaster";
+                    errorDescription = "The compatibility of the Knowledge Master doesn't match the server version";
+                    return;
+
+                case "308":
+                    errorName = "RestrictionsOccurred";
+                    errorDescription = "";
+                    return;
+
+                case "309":
+                    errorName = "FeatureNotAvailable";
+                    errorDescription = "";
+                    return;
+
+                case "310":
+                    errorName = "IncompatibleKnowledgeLibrary";
+                    errorDescription = "";
+                    return;
+
+                case "311":
+                    errorName = "InvalidAuthType";
+                    errorDescription = "Attempted to login through WinAuth login user, but user is of Auth Type Vault. ";
+                    return;
+
+                case "312":
+                    errorName = "WinAuthUserNotFound";
+                    errorDescription = "could be auto create is disabled or could not find a valid AD group";
+                    return;
+
+                case "313":
+                    errorName = "WinAuthAnonymousIdentity";
+                    errorDescription = "Identity was unauthenticated or anonymous";
+                    return;
+
+                case "318":
+                    errorName = "WinAuthFailed";
+                    errorDescription = "Unknown WinAuth error occurred.";
+                    return;
+
+                case "319":
+                    errorName = "LicensingError";
+                    errorDescription = "";
+                    return;
+
+                case "320":
+                    errorName = "PermissionTamperingDetected";
+                    errorDescription = "";
+                    return;
+
+                case "321":
+                    errorName = "WorkgroupDoesNotHaveAdminOwnership";
+                    errorDescription = "";
+                    return;
+
+                case "322":
+                    errorName = "WorkgroupDoesNotHaveObjectOwnership";
+                    errorDescription = "";
+                    return;
+
+                case "323":
+                    errorName = "WorkgroupIsSubscriber";
+                    errorDescription = "";
+                    return;
+
+                case "370":
+                    errorName = "OwnedButNotSynced";
+                    errorDescription = "";
+                    return;
+
+                case "400":
+                    errorName = "DuplicateRoutingName";
+                    errorDescription = "The routing name already exists.";
+                    return;
+
+                case "401":
+                    errorName = "IncompleteRouting";
+                    errorDescription = "Must be at least one user assigned to each role.";
+                    return;
+
+                case "402":
+                    errorName = "DeactivateRoutingFailed";
+                    errorDescription = "Can't deactivate the last active routing, or the default routing.";
+                    return;
+
+                case "403":
+                    errorName = "DeleteRoutingFailed";
+                    errorDescription = "Can't delete a routing in use, the last active routing, or the default routing.";
+                    return;
+
+                case "404":
+                    errorName = "SetDefaultRoutingFailed";
+                    errorDescription = "Cannot set a deactive routing to the default.";
+                    return;
+
+                case "405":
+                    errorName = "ActionDenied";
+                    errorDescription = "The user does not have the appropriate routing role to perform the activity.";
+                    return;
+
+                case "406":
+                    errorName = "ActionAlreadyPerformed";
+                    errorDescription = "The user has already performed the activity since the change order last entered the current state.";
+                    return;
+
+                case "407":
+                    errorName = "BadRoutingName";
+                    errorDescription = "Routing name contains illegal characters";
+                    return;
+
+                case "408":
+                    errorName = "BadRoutingNameLength";
+                    errorDescription = "";
+                    return;
+
+                case "501":
+                    errorName = "FailureToLoadEmailHandler";
+                    errorDescription = "";
+                    return;
+
+                case "502":
+                    errorName = "ErrorSendingEmail";
+                    errorDescription = "";
+                    return;
+
+                case "503":
+                    errorName = "ErrorInitializeEmailhandler";
+                    errorDescription = "";
+                    return;
+
+                case "504":
+                    errorName = "EmailIsConfiguredAsDisabled";
+                    errorDescription = "";
+                    return;
+
+                case "505":
+                    errorName = "InvalidAttachmentStream";
+                    errorDescription = "";
+                    return;
+
+                case "506":
+                    errorName = "InvalidAttachmentName";
+                    errorDescription = "";
+                    return;
+
+                case "600":
+                    errorName = "JobConfigurationError";
+                    errorDescription = "";
+                    return;
+
+                case "601":
+                    errorName = "FailureToLoadJobHandler";
+                    errorDescription = "";
+                    return;
+
+                case "602":
+                    errorName = "DuplicateJobHandlerIdFound";
+                    errorDescription = "";
+                    return;
+
+                case "603":
+                    errorName = "JobIdNotFound";
+                    errorDescription = "";
+                    return;
+
+                case "700":
+                    errorName = "AddCustomEntityDefFailed";
+                    errorDescription = "";
+                    return;
+
+                case "701":
+                    errorName = "AddCustomEntityFailed";
+                    errorDescription = "";
+                    return;
+
+                case "702":
+                    errorName = "DeleteCustomEntityRestrictionsOccurred";
+                    errorDescription = "";
+                    return;
+
+                case "703":
+                    errorName = "DeleteCustomEntityDefFailed";
+                    errorDescription = "";
+                    return;
+
+                case "704":
+                    errorName = "UpdateCustomEntityFailed";
+                    errorDescription = "";
+                    return;
+
+                case "705":
+                    errorName = "UpdateCustomEntityDefFailed";
+                    errorDescription = "";
+                    return;
+
+                case "706":
+                    errorName = "DuplicateCustomEntityDefName";
+                    errorDescription = "";
+                    return;
+
+                case "707":
+                    errorName = "CustomEntityDefDisplayNameExceedsMaxLength";
+                    errorDescription = "";
+                    return;
+
+                case "708":
+                    errorName = "InvalidCustomEntityDefDisplayName";
+                    errorDescription = "";
+                    return;
+
+                case "709":
+                    errorName = "CustomEntityNameExceedsMaxLength";
+                    errorDescription = "";
+                    return;
+
+                case "1000":
+                    errorName = "BadFolderId";
+                    errorDescription = "";
+                    return;
+
+                case "1001":
+                    errorName = "GetLatestVersionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1003":
+                    errorName = "BadFileId";
+                    errorDescription = "This error code should still exist, but none of these items appear to belong here:";
+                    return;
+
+                case "1004":
+                    errorName = "CheckoutFailed";
+                    errorDescription = "Checkout latest file version failed.";
+                    return;
+
+                case "1005":
+                    errorName = "CheckinFailed";
+                    errorDescription = "Error checking in file version into database.";
+                    return;
+
+                case "1006":
+                    errorName = "UndoCheckoutFailed";
+                    errorDescription = "Error undoing check out of file version.";
+                    return;
+
+                case "1007":
+                    errorName = "BadVersionId";
+                    errorDescription = "Bad version id when getting file version dependents or dependencies by version id.";
+                    return;
+
+                case "1008":
+                    errorName = "AddFileExists";
+                    errorDescription = "Cannot add file because file exists.";
+                    return;
+
+                case "1009":
+                    errorName = "AddFileFailed";
+                    errorDescription = "Cannot add file (unspecified failure)";
+                    return;
+
+                case "1010":
+                    errorName = "NOT USED ANYMORE.";
+                    errorDescription = "NOT USED ANYMORE.";
+                    return;
+
+                case "1011":
+                    errorName = "AddFolderExists";
+                    errorDescription = "Cannot add folder because folder exists.";
+                    return;
+
+                case "1012":
+                    errorName = "AddFailedCreateFolder";
+                    errorDescription = "Cannot add folder (unable to create/make new folder).";
+                    return;
+
+                case "1013":
+                    errorName = "GetFileFailed";
+                    errorDescription = "Cannot get file (file id is invalid).";
+                    return;
+
+                case "1014":
+                    errorName = "MakeVersionFailed";
+                    errorDescription = "Cannot create/make version in database.";
+                    return;
+
+                case "1015":
+                    errorName = "DeleteFileWithDependencies";
+                    errorDescription = "Only have file id, not name";
+                    return;
+
+                case "1016":
+                    errorName = "UndoCheckoutWrongUser";
+                    errorDescription = "Cannot undo checkout because user is not the same as user who checked out file.";
+                    return;
+
+                case "1017":
+                    errorName = "UndoCheckoutWrongFolder";
+                    errorDescription = "Cannot undo checkout because passed in folder id is not the same folder that the file was checked out from.";
+                    return;
+
+                case "1018":
+                    errorName = "CheckinNotCheckedOut";
+                    errorDescription = "Cannot check in file because the file is not currently checked out";
+                    return;
+
+                case "1019":
+                    errorName = "CheckinWrongUser";
+                    errorDescription = "Cannot check in file because the file is not currently checked out by the same user.";
+                    return;
+
+                case "1020":
+                    errorName = "CheckinWrongFolder";
+                    errorDescription = "Cannot check in file because passed in folder id is not the same folder that the file was checked out from.";
+                    return;
+
+                case "1021":
+                    errorName = "CheckoutAlreadyCheckedOut";
+                    errorDescription = "Cannot check out the file because it is already checked out.";
+                    return;
+
+                case "1022":
+                    errorName = "SelfDependency";
+                    errorDescription = "Only have file version id, not name";
+                    return;
+
+                case "1023":
+                    errorName = "MakeFolderFailed";
+                    errorDescription = "Cannot create folder in database.";
+                    return;
+
+                case "1024":
+                    errorName = "GetFolderFailed";
+                    errorDescription = "Occurs in these cases:";
+                    return;
+
+                case "1025":
+                    errorName = "GetRootFailed";
+                    errorDescription = "Cannot get root folder from the database.";
+                    return;
+
+                case "1026":
+                    errorName = "LibraryProjectExistsForFileId";
+                    errorDescription = "File belongs to a library folder.";
+                    return;
+
+                case "1027":
+                    errorName = "LibraryProjectExistsForId";
+                    errorDescription = "Folder is a library folder.";
+                    return;
+
+                case "1028":
+                    errorName = "MoveFileFailed";
+                    errorDescription = "Cannot move file.";
+                    return;
+
+                case "1029":
+                    errorName = "MoveFileExists";
+                    errorDescription = "Only have file id, not name";
+                    return;
+
+                case "1030":
+                    errorName = "ShareFileExists";
+                    errorDescription = "Only have file id, not name";
+                    return;
+
+                case "1031":
+                    errorName = "DuplicatePropertyDefName";
+                    errorDescription = "";
+                    return;
+
+                case "1034":
+                    errorName = "RenameFailed";
+                    errorDescription = "Cannot rename the file because there was some other unexpected error.";
+                    return;
+
+                case "1035":
+                    errorName = "MakeDefinitionFailed ";
+                    errorDescription = "Could not create property definition in database.";
+                    return;
+
+                case "1036":
+                    errorName = "GetAllPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1037":
+                    errorName = "GetAllPropertyDefinitinsExtendedFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1038":
+                    errorName = "**GetFileVersionsByPropertySearchConditionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1041":
+                    errorName = "GetPropertiesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1042":
+                    errorName = "AddFolderChildRootInvalid";
+                    errorDescription = "Create folder rule-check failed:  parent must exist, for all but root";
+                    return;
+
+                case "1043":
+                    errorName = "AddFolderLibraryRelationshipInvalid";
+                    errorDescription = "Create folder rule-check failed:  libs can only have non lib parent if that parent is root.  libs cannot have non lib children.";
+                    return;
+
+                case "1044":
+                    errorName = "ConcurrentShareFailed";
+                    errorDescription = "Request to share a file to a folder fails because of a concurrent request to share the file to the same folder.";
+                    return;
+
+                case "1045":
+                    errorName = "ConcurrentMoveFailed";
+                    errorDescription = "Request to move a file to a folder fails because of a concurrent request to move the file to the same folder or because of a concurrent request to move the file to another folder";
+                    return;
+
+                case "1046":
+                    errorName = "FolderCharacterLengthInvalid";
+                    errorDescription = "Request to create a folder fails because the folder name is longer than 255 characters.";
+                    return;
+
+                case "1047":
+                    errorName = "DependentExistsAttachmentFailed";
+                    errorDescription = "Unused";
+                    return;
+
+                case "1048":
+                    errorName = "RenameFailedDependentParentItemsLinked";
+                    errorDescription = "Unused";
+                    return;
+
+                case "1049":
+                    errorName = "RenameFailedDependentParentItemsAttached";
+                    errorDescription = "Unused";
+                    return;
+
+                case "1050":
+                    errorName = "DeleteFileFailedRestrictions";
+                    errorDescription = "Request to conditionally delete a file fails because there are delete restrictions (file has dependent parents files, file is checked out, or file is linked or attached to an item)";
+                    return;
+
+                case "1051":
+                    errorName = "DeleteFileFailedUnconditionalRestrictions";
+                    errorDescription = "Request to unconditionally delete a file fails because the are delete restrictions that cannot be overridden (file is linked or attached to an item)";
+                    return;
+
+                case "1052":
+                    errorName = "DeleteFileFailed";
+                    errorDescription = "Request to delete a file failed for an unspecified reason.";
+                    return;
+
+                case "1053":
+                    errorName = "DeleteFolderFailedRestrictions";
+                    errorDescription = "Request to conditionally delete a folder fails because there are delete restrictions on one or more child files (file has dependent parents files, file is checked out, or file is linked or attached to an item)";
+                    return;
+
+                case "1054":
+                    errorName = "DeleteFolderFailedUnconditionalRestrictions";
+                    errorDescription = "Request to unconditionally delete a folder fails because the are delete restrictions that cannot be overridden on one or more child files (file is linked or attached to an item)";
+                    return;
+
+                case "1055":
+                    errorName = "DeleteFolderFailed";
+                    errorDescription = "Request to delete a folder fails due to an unspecified reason";
+                    return;
+
+                case "1056":
+                    errorName = "PurgeBadParam ";
+                    errorDescription = "The keep count must be >= 1, and the minimum age must be >= 0";
+                    return;
+
+                case "1057":
+                    errorName = "PurgeFailed";
+                    errorDescription = "Occurs when something goes wrong while purging file iterations from the database, or while deleting files from the file store";
+                    return;
+
+                case "1058":
+                    errorName = "UniqueFileNameRequiredViolated";
+                    errorDescription = "If the Unique File Name Required Vault option is ON, a request to Add or Checkin a file with the same name as a file already existing in the Vault will fail with this error.";
+                    return;
+
+                case "1059":
+                    errorName = "UpdateFolderFailed";
+                    errorDescription = "Occurs when an attempt to update a Folder fails for an unspecified reason.";
+                    return;
+
+                case "1060":
+                    errorName = "UpdateFolderExists";
+                    errorDescription = "Occurs when an attempt to update a Folder Name fails because another Folder with that name exists in the parent.";
+                    return;
+
+                case "1061":
+                    errorName = "BadLabelId";
+                    errorDescription = "Label ID is invalid";
+                    return;
+
+                case "1062":
+                    errorName = "BadLabelName";
+                    errorDescription = "Label Name contains invalid characters";
+                    return;
+
+                case "1063":
+                    errorName = "DuplicateLabel";
+                    errorDescription = "Label Name already exists in vault";
+                    return;
+
+                case "1064":
+                    errorName = "MakeLabelFailed";
+                    errorDescription = "Cannot create label in database.";
+                    return;
+
+                case "1065":
+                    errorName = "GetAllFilesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1066":
+                    errorName = "BadPropertyGroupId";
+                    errorDescription = "";
+                    return;
+
+                case "1067":
+                    errorName = "PropertyGroupExists";
+                    errorDescription = "";
+                    return;
+
+                case "1069":
+                    errorName = "PropertyGroupEmpty";
+                    errorDescription = "";
+                    return;
+
+                case "1072":
+                    errorName = "DeletePropertyGroupFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1073":
+                    errorName = "MoveFolderFailed";
+                    errorDescription = "Now used as: documentRestriction_11; documentRestriction_12; documentRestriction_13 in document world.";
+                    return;
+
+                case "1074":
+                    errorName = "MoveFolderExists";
+                    errorDescription = "Folder with the same name already exists in the destination folder";
+                    return;
+
+                case "1075":
+                    errorName = "MoveFolderDescendentCheckedOut";
+                    errorDescription = "Folder begin moved has descendent files that are checked out.";
+                    return;
+
+                case "1076":
+                    errorName = "MoveFolderChildRootInvalid";
+                    errorDescription = "Move folder rule-check failed:  parent must exist, for all but root";
+                    return;
+
+                case "1077":
+                    errorName = "MoveFolderLibraryRelationshipInvalid";
+                    errorDescription = "Move folder rule-check failed:  libs can only have non lib parent if that parent is root.  libs cannot have non lib children.";
+                    return;
+
+                case "1078":
+                    errorName = "FolderNameInvalid";
+                    errorDescription = "A null path or path will illegal characters has been passed in.";
+                    return;
+
+                case "1079":
+                    errorName = "FolderFullNameTooLong";
+                    errorDescription = "";
+                    return;
+
+                case "1080":
+                    errorName = "IllegalNullParam";
+                    errorDescription = "A null value has been passed in where null values are not allowed.";
+                    return;
+
+                case "1081":
+                    errorName = "BadDate";
+                    errorDescription = "The date is out of range for the DB.  The date should be between 1-1-1753 and 12-31-9999";
+                    return;
+
+                case "1082":
+                    errorName = "ArraysOfDifferentSizes";
+                    errorDescription = "The input arrays were not of the same size";
+                    return;
+
+                case "1083":
+                    errorName = "LabelNameLengthInvalid";
+                    errorDescription = "";
+                    return;
+
+                case "1084":
+                    errorName = "UndoCheckoutNotCheckedOut";
+                    errorDescription = "Cannot undo check out of the file because the file is not currently checked out.";
+                    return;
+
+                case "1085":
+                    errorName = "BadSearchOperator";
+                    errorDescription = "The search operator is not valid.";
+                    return;
+
+                case "1086":
+                    errorName = "EmptyFolder";
+                    errorDescription = "The folder being operated on is empty.";
+                    return;
+
+                case "1087":
+                    errorName = "IllegalEmptyString";
+                    errorDescription = "A empty string has been passed in where its is not allowed.";
+                    return;
+
+                case "1088":
+                    errorName = "UnknownBOMVersion";
+                    errorDescription = "BOM information is stored with each file iteration as an xml string.  The xml format differs between Vault releases.  In order to identity the different formats, each string is marked with an namespace.  The server uses the namespace to determine how the xml string should be converted into a BOM object.  If the server encounters a string without a recognized namespace, it will return this code.";
+                    return;
+
+                case "1089":
+                    errorName = "InvalidBOMXml";
+                    errorDescription = "During AddFile and CheckinFile calls, the client can supply BOM information for the file in the form of a OBM object.  The server then sotres this information with the file iteration and it is used during the promot process.  The server validates the BOM information against the defined schema, if validation fails, this code is returned.";
+                    return;
+
+                case "1090":
+                    errorName = "BadPropertyDefId";
+                    errorDescription = "Property Def Id is invalid.";
+                    return;
+
+                case "1091":
+                    errorName = "CheckoutFolderInvalid";
+                    errorDescription = "The file being checked out does not live in the specified folder, therefore it cannot be used as the checkout folder.";
+                    return;
+
+                case "1092":
+                    errorName = "RestrictionsOccurred";
+                    errorDescription = "Restrictions have occurred. More information available in SoapException detail.";
+                    return;
+
+                case "1093":
+                    errorName = "GetRestrictionsFailed";
+                    errorDescription = "Failed trying to determine restrictions.";
+                    return;
+
+                case "1094":
+                    errorName = "PropertyGroupPropertyDefMinCount";
+                    errorDescription = "Property groups must include a minimum of 2 property definitions.";
+                    return;
+
+                case "1098":
+                    errorName = "MoveFileLocked";
+                    errorDescription = "The file cannot be moved because it is locked";
+                    return;
+
+                case "1100":
+                    errorName = "UploadFileDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "1101":
+                    errorName = "DownloadFileSizeExceedsServerLimit";
+                    errorDescription = "";
+                    return;
+
+                case "1102":
+                    errorName = "UpdatePropertyDefinitionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1103":
+                    errorName = "CheckinFailedAssociatedFileCheckedout";
+                    errorDescription = "";
+                    return;
+
+                case "1104":
+                    errorName = "SetFileStatusFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1106":
+                    errorName = "FullContentSearchContentIndexingDisabled";
+                    errorDescription = "The client has submitted a search against file content but the Vault Content Indexing is disabled.";
+                    return;
+
+                case "1107":
+                    errorName = "DimeAttachmentExpected";
+                    errorDescription = "This error will be raised if AddFile or UploadFilePart is called without including a DIME attachment.";
+                    return;
+
+                case "1108":
+                    errorName = "BadFileName";
+                    errorDescription = "This error will be raised by AddFile and AddUploadedFile is the filename supplied for the new file is null, empty or contains invalid characters.  CheckinFile and CheckinUploadedFile will raise this error if the newFilename propvided contains invalid characters.";
+                    return;
+
+                case "1109":
+                    errorName = "ComponentCustomPropertyDefExists";
+                    errorDescription = "";
+                    return;
+
+                case "1110":
+                    errorName = "ParamNameInvalid";
+                    errorDescription = "";
+                    return;
+
+                case "1111":
+                    errorName = "DuplicateFileNamingSchemeExists";
+                    errorDescription = "";
+                    return;
+
+                case "1112":
+                    errorName = "AddFileNamingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1113":
+                    errorName = "UpdateFileNamingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1114":
+                    errorName = "FileExistsRemotely";
+                    errorDescription = "";
+                    return;
+
+                case "1115":
+                    errorName = "FileDoesNotExists";
+                    errorDescription = "";
+                    return;
+
+                case "1116":
+                    errorName = "SaveFilterConfigFailed";
+                    errorDescription = "Raised when the Filter Config information cannot be saved to disk.";
+                    return;
+
+                case "1117":
+                    errorName = "BadFileNamingScheme";
+                    errorDescription = "";
+                    return;
+
+                case "1118":
+                    errorName = "RollbackFileNamingDescriptionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1119":
+                    errorName = "ReserveFileNamingDescriptionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1120":
+                    errorName = "FolderFileNameCollision";
+                    errorDescription = "AddFile, CheckinFile, MoveFile, ShareFile, AddFolder";
+                    return;
+
+                case "1121":
+                    errorName = "CreateUserDefinedPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1122":
+                    errorName = "BadPropertyReindexError";
+                    errorDescription = "";
+                    return;
+
+                case "1123":
+                    errorName = "IdentifyFilesForPropertyReindexFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1124":
+                    errorName = "AddDesignVisualizationAttachmentBadFileClassification";
+                    errorDescription = "";
+                    return;
+
+                case "1125":
+                    errorName = "AddDesignVisualizationAttachmentBadAttachmentOrder";
+                    errorDescription = "";
+                    return;
+
+                case "1126":
+                    errorName = "AddDesignVisualizationAttachmentExists";
+                    errorDescription = "";
+                    return;
+
+                case "1127":
+                    errorName = "SetDesignVisualizationStatusFileCheckedOut";
+                    errorDescription = "";
+                    return;
+
+                case "1128":
+                    errorName = "SetDesignVisualizationStatusInvalidStatus";
+                    errorDescription = "";
+                    return;
+
+                case "1129":
+                    errorName = "GenerateFileNumberFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1130":
+                    errorName = "GenerateFileNumberFailedAutoFieldNumberUsedUp";
+                    errorDescription = "";
+                    return;
+
+                case "1131":
+                    errorName = "FileRenameReleasedParent";
+                    errorDescription = "";
+                    return;
+
+                case "1132":
+                    errorName = "WarningThresholdGreaterThanMaximumThreshold";
+                    errorDescription = "";
+                    return;
+
+                case "1133":
+                    errorName = "ThresholdOutOfRange";
+                    errorDescription = "";
+                    return;
+
+                case "1134":
+                    errorName = "ExceedBulkFileMaximumThreshold";
+                    errorDescription = "";
+                    return;
+
+                case "1135":
+                    errorName = "FailureToSaveFileForProviderUse";
+                    errorDescription = "";
+                    return;
+
+                case "1136":
+                    errorName = "UpdateFilePropertiesNotCheckedOut";
+                    errorDescription = "";
+                    return;
+
+                case "1137":
+                    errorName = "CannotCheckoutNontipFileVersion";
+                    errorDescription = "";
+                    return;
+
+                case "1138":
+                    errorName = "FileUploadRequired";
+                    errorDescription = "This checkin operation requires an uploaded file.";
+                    return;
+
+                case "1139":
+                    errorName = "FileUploadInuse";
+                    errorDescription = "This upload ticket has already been used.";
+                    return;
+
+                case "1140":
+                    errorName = "FileUploadWrongExtension";
+                    errorDescription = "The uploaded file extension doesn't match the file name";
+                    return;
+
+                case "1200":
+                    errorName = "SerializeNullObject";
+                    errorDescription = "";
+                    return;
+
+                case "1300":
+                    errorName = "BadId";
+                    errorDescription = "Occurs when item revision ID is bad, user ID is bad";
+                    return;
+
+                case "1301":
+                    errorName = "BadUserId";
+                    errorDescription = "The user ID couldn't be used to create an item revision";
+                    return;
+
+                case "1302":
+                    errorName = "BadItemRevision";
+                    errorDescription = "The item revision couldn't be used to create the new item revision";
+                    return;
+
+                case "1303":
+                    errorName = "BadMasterItemId";
+                    errorDescription = "The master item ID didn't return the tip item revision";
+                    return;
+
+                case "1304":
+                    errorName = "BadRevisionNumber";
+                    errorDescription = "Item revision is less than or equal to current revision";
+                    return;
+
+                case "1305":
+                    errorName = "BadRevisionNumberFormat";
+                    errorDescription = "Item revision isn't in current revision scheme";
+                    return;
+
+                case "1306":
+                    errorName = "UpdateItemsFailed";
+                    errorDescription = "The item or unpinned item iteration associations could not be updated";
+                    return;
+
+                case "1307":
+                    errorName = "UpdateItemFailed";
+                    errorDescription = "The item, its attachments, or unpinned item iteration associations could not be updated";
+                    return;
+
+                case "1308":
+                    errorName = "DeleteItemsFailed";
+                    errorDescription = "Item could not be deleted";
+                    return;
+
+                case "1309":
+                    errorName = "GetTipItemRevisionsFailed";
+                    errorDescription = "Tip item revisions could not be retrieved ";
+                    return;
+
+                case "1310":
+                    errorName = "GetItemRevisionHistoryFailed";
+                    errorDescription = "Item revision history could not be retrieved";
+                    return;
+
+                case "1311":
+                    errorName = "GetTipItemRevisionFailed";
+                    errorDescription = "Item revision could not be retrieved. Please refresh and try again";
+                    return;
+
+                case "1312":
+                    errorName = "GetRolledUpBOMFailed";
+                    errorDescription = "Rolled up BOM could not be retrieved";
+                    return;
+
+                case "1313":
+                    errorName = "GetAllBOMLinksAndRevisionsFailed";
+                    errorDescription = "BOM links and revisions could not be retrieved";
+                    return;
+
+                case "1314":
+                    errorName = "BOMCompareFailed";
+                    errorDescription = "The selected BOMs could not be compared";
+                    return;
+
+                case "1315":
+                    errorName = "GetNextRevisionOptionsFailed";
+                    errorDescription = "Next revision options could not be retrieved";
+                    return;
+
+                case "1316":
+                    errorName = "PromoteFileIterationsFailed";
+                    errorDescription = "File iterations could not be promoted";
+                    return;
+
+                case "1317":
+                    errorName = "UpdateItemsFromFilesFailed";
+                    errorDescription = "Could not update items from files";
+                    return;
+
+                case "1318":
+                    errorName = "GetPromoteUpdateRestrictionsFailed";
+                    errorDescription = "Could not get restrictions for promote and udpate";
+                    return;
+
+                case "1319":
+                    errorName = "GetItemUpdateRestrictionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1320":
+                    errorName = "CreateItemRevisionFailed";
+                    errorDescription = "Could not create an item revision";
+                    return;
+
+                case "1321":
+                    errorName = "EditItemRevisionFailed";
+                    errorDescription = "Could not get item revision to edit";
+                    return;
+
+                case "1322":
+                    errorName = "DeleteItemIterationsFailed";
+                    errorDescription = "Could not delete item iterations";
+                    return;
+
+                case "1323":
+                    errorName = "GetLifeCycleDefsFailed";
+                    errorDescription = "Could not get lifecycle definitions";
+                    return;
+
+                case "1324":
+                    errorName = "GetItemIterationAttachmentsFailed";
+                    errorDescription = "Could not get item iteration attachments";
+                    return;
+
+                case "1325":
+                    errorName = "GetItemFileLinksFailed";
+                    errorDescription = "Could not get file links for item";
+                    return;
+
+                case "1326":
+                    errorName = "GetLifeCycleStateChangeRestrictionsFailed";
+                    errorDescription = "Could not get restrictions for lifecycle state changes";
+                    return;
+
+                case "1327":
+                    errorName = "BulkChangeLifeCycleFailed";
+                    errorDescription = "Could not perform bulk lifecycle change";
+                    return;
+
+                case "1328":
+                    errorName = "GetItemRevisionsForFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1329":
+                    errorName = "GetUserDefinedPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1330":
+                    errorName = "CreateUserDefinedPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1333":
+                    errorName = "DeleteUnitOfMeasureFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1334":
+                    errorName = "CreateUnitOfMeasureFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1335":
+                    errorName = "EditUnitOfMeasureFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1336":
+                    errorName = "GetUnitOfMeasureFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1337":
+                    errorName = "GetAllUnitsOfMeasureFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1338":
+                    errorName = "GetBaseUnitsOfMeasureFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1339":
+                    errorName = "GetUnitOfMeasureFamilyFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1341":
+                    errorName = "CreateItemNumberFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1344":
+                    errorName = "DeleteUnusedItemNumbersFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1349":
+                    errorName = "GetEditItemRevisionRestrictionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1350":
+                    errorName = "GetLatestItemRevisionByItemNumberFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1351":
+                    errorName = "GetChangeItemNumberRestrictionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1352":
+                    errorName = "GetChangeItemRevisionNumberRestrictionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1358":
+                    errorName = "BadUnitOfMeasure";
+                    errorDescription = "";
+                    return;
+
+                case "1361":
+                    errorName = "ZeroDefaultRevisionSchemeAssignedToCategory";
+                    errorDescription = "";
+                    return;
+
+                case "1362":
+                    errorName = "PromoteFileIterationsConcurrencyFailed";
+                    errorDescription = "Could not promote files due to concurrency issues.";
+                    return;
+
+                case "1364":
+                    errorName = "InvalidLock";
+                    errorDescription = "An Invalid Lock has occurred.  You were not able to obtain a lock for this operation or your lock expired.";
+                    return;
+
+                case "1365":
+                    errorName = "GetDeleteItemRestrictionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1366":
+                    errorName = "GetAllBOMStructureTypesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1367":
+                    errorName = "DuplicateName";
+                    errorDescription = "";
+                    return;
+
+                case "1368":
+                    errorName = "DuplicateId";
+                    errorDescription = "";
+                    return;
+
+                case "1369":
+                    errorName = "EntityInUse";
+                    errorDescription = "";
+                    return;
+
+                case "1370":
+                    errorName = "InvalidArrayLength";
+                    errorDescription = "";
+                    return;
+
+                case "1371":
+                    errorName = "GetItemTypeByIdFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1372":
+                    errorName = "GetAllItemTypesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1373":
+                    errorName = "AddItemTypeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1374":
+                    errorName = "UpdateItemTypeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1375":
+                    errorName = "DeleteItemTypeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1376":
+                    errorName = "AddRevisionSequenceSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1377":
+                    errorName = "AddRevisionFormatFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1378":
+                    errorName = "GetAllRevisionFormatsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1379":
+                    errorName = "GetAllRevisionSequenceSchemesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1381":
+                    errorName = "UpdateItemIterationBOMLinksFailed";
+                    errorDescription = "Update BOM failed.";
+                    return;
+
+                case "1384":
+                    errorName = "NotEditable";
+                    errorDescription = "";
+                    return;
+
+                case "1385":
+                    errorName = "SetItemLifeCycleStateFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1386":
+                    errorName = "GetItemIterationsByIterationIdsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1387":
+                    errorName = "RestrictionsOccurred";
+                    errorDescription = "";
+                    return;
+
+                case "1388":
+                    errorName = "GetRestrictionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1389":
+                    errorName = "IncompatibleDataType";
+                    errorDescription = "";
+                    return;
+
+                case "1390":
+                    errorName = "EntityDeleted";
+                    errorDescription = "";
+                    return;
+
+                case "1391":
+                    errorName = "CircularReference";
+                    errorDescription = "";
+                    return;
+
+                case "1392":
+                    errorName = "DuplicatePriority";
+                    errorDescription = "";
+                    return;
+
+                case "1393":
+                    errorName = "DuplicateMapping";
+                    errorDescription = "";
+                    return;
+
+                case "1394":
+                    errorName = "GetMappablePropertyDefsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1396":
+                    errorName = "UpdateItemEffectivityFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1398":
+                    errorName = "GetRestorableItemRevisionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1399":
+                    errorName = "RestoreItemFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1400":
+                    errorName = "GetItemPropertiesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1401":
+                    errorName = "GetAllItemPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1402":
+                    errorName = "DuplicateLabel";
+                    errorDescription = "";
+                    return;
+
+                case "1403":
+                    errorName = "IntrinsicPropertyNameCollision";
+                    errorDescription = "";
+                    return;
+
+                case "1404":
+                    errorName = "GetItemRevisionByItemIterationIDFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1405":
+                    errorName = "BadItemIterationId";
+                    errorDescription = "Item version identified incorrectly.";
+                    return;
+
+                case "1406":
+                    errorName = "ItemNumberInUse";
+                    errorDescription = "";
+                    return;
+
+                case "1407":
+                    errorName = "RevisionSequenceSchemeLengthGreaterThan16";
+                    errorDescription = "";
+                    return;
+
+                case "1408":
+                    errorName = "GetRollbackItemLifeCycleStatesInfoFailed";
+                    errorDescription = "Could not retreive rollback information.";
+                    return;
+
+                case "1409":
+                    errorName = "RollbackItemLifeCycleStatesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1410":
+                    errorName = "RollbackItemLifeCycleStatesCancelFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1411":
+                    errorName = "GetItemRefDesPropertiesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1412":
+                    errorName = "GetAllItemRefDesPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1413":
+                    errorName = "DuplicateBomSchemeName";
+                    errorDescription = "";
+                    return;
+
+                case "1414":
+                    errorName = "GetItemDuplicateCandidatesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1415":
+                    errorName = "ReassignComponentsToDifferentItemsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1416":
+                    errorName = "GetReleasedRevisionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1417":
+                    errorName = "GetBOMFailedNothingEffective";
+                    errorDescription = "";
+                    return;
+
+                case "1418":
+                    errorName = "GetDWFWatermarksByItemIdFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1419":
+                    errorName = "CreateDWFWatermarkDefinitionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1420":
+                    errorName = "GetAllDWFWatermarkDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1421":
+                    errorName = "GetDWFWatermarkByFileIterationId";
+                    errorDescription = "";
+                    return;
+
+                case "1422":
+                    errorName = "GetEnableDWFWatermarkingFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1423":
+                    errorName = "SetEnableDWFWatermarkingFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1424":
+                    errorName = "UpdateDWFWatermarkDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1425":
+                    errorName = "BadFileIterationId";
+                    errorDescription = "File version identified incorrectly.";
+                    return;
+
+                case "1426":
+                    errorName = "WatermarkRetrievalFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1427":
+                    errorName = "DuplicateConstraintDefForProperty";
+                    errorDescription = "Could not create a property constraint for the property because one of the some type already exists.";
+                    return;
+
+                case "1428":
+                    errorName = "InvalidStringLength";
+                    errorDescription = "";
+                    return;
+
+                case "1429":
+                    errorName = "IllegalUseOfNull";
+                    errorDescription = "";
+                    return;
+
+                case "1430":
+                    errorName = "PropertyDefinitionDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "1431":
+                    errorName = "ItemTypeDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "1432":
+                    errorName = "InvalidConstraintExpression";
+                    errorDescription = "";
+                    return;
+
+                case "1433":
+                    errorName = "GetItemPackAndGoInfoFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1434":
+                    errorName = "InvalidPropertyConstraintEntityTypeId";
+                    errorDescription = "";
+                    return;
+
+                case "1435":
+                    errorName = "GetRestrictLifeCycleStateChangeToChangeOrderFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1436":
+                    errorName = "SetRestrictLifeCycleStateChangeToChangeOrderFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1437":
+                    errorName = "BadUnitOfMeasureId";
+                    errorDescription = "";
+                    return;
+
+                case "1442":
+                    errorName = "GetEnablementConfigurationFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1443":
+                    errorName = "SetEnablementConfigurationFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1445":
+                    errorName = "GetItemRevisionByItemNumberAndRevisionNumberFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1446":
+                    errorName = "GetRestrictAssignDesignFilesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1447":
+                    errorName = "SetRestrictAssignDesignFilesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1448":
+                    errorName = "GetItemBOMLinksFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1455":
+                    errorName = "ItemProvisionalComponentDataInvalid";
+                    errorDescription = "";
+                    return;
+
+                case "1500":
+                    errorName = "System_Error";
+                    errorDescription = "";
+                    return;
+
+                case "1501":
+                    errorName = "MSMQSendError";
+                    errorDescription = "";
+                    return;
+
+                case "1502":
+                    errorName = "Export_Get_Configuration_File_Error";
+                    errorDescription = "";
+                    return;
+
+                case "1503":
+                    errorName = "GetERPPackageError";
+                    errorDescription = "";
+                    return;
+
+                case "1504":
+                    errorName = "GetDWFPackageError";
+                    errorDescription = "";
+                    return;
+
+                case "1505":
+                    errorName = "ExportERPPackageError";
+                    errorDescription = "";
+                    return;
+
+                case "1506":
+                    errorName = "ExportDWFError";
+                    errorDescription = "";
+                    return;
+
+                case "1507":
+                    errorName = "CreateDWFPackageError";
+                    errorDescription = "";
+                    return;
+
+                case "1508":
+                    errorName = "ItemServiceError";
+                    errorDescription = "";
+                    return;
+
+                case "1509":
+                    errorName = "CopyFileError";
+                    errorDescription = "";
+                    return;
+
+                case "1510":
+                    errorName = "GetRevisionFromIterationIDError";
+                    errorDescription = "";
+                    return;
+
+                case "1511":
+                    errorName = "GetChildRevisionsError";
+                    errorDescription = "";
+                    return;
+
+                case "1512":
+                    errorName = "DeleteObsoletFilesError";
+                    errorDescription = "";
+                    return;
+
+                case "1513":
+                    errorName = "NoValidItemSelected";
+                    errorDescription = "";
+                    return;
+
+                case "1514":
+                    errorName = "Export_Save_Configuration_File_Error";
+                    errorDescription = "";
+                    return;
+
+                case "1515":
+                    errorName = "CheckStateError";
+                    errorDescription = "";
+                    return;
+
+                case "1520":
+                    errorName = "GetImportSystemFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1521":
+                    errorName = "GetExportSystemFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1522":
+                    errorName = "ImportFileNotFound";
+                    errorDescription = "";
+                    return;
+
+                case "1523":
+                    errorName = "ImportFileNotIntegrated";
+                    errorDescription = "";
+                    return;
+
+                case "1524":
+                    errorName = "InvalidImportFileFormat";
+                    errorDescription = "";
+                    return;
+
+                case "1525":
+                    errorName = "NoItemExists";
+                    errorDescription = "";
+                    return;
+
+                case "1526":
+                    errorName = "InvalidItemExists";
+                    errorDescription = "";
+                    return;
+
+                case "1527":
+                    errorName = "InvalidBOMStructure";
+                    errorDescription = "";
+                    return;
+
+                case "1528":
+                    errorName = "ReadCSVFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1529":
+                    errorName = "ReadTDLFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1530":
+                    errorName = "ReadXmlFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1531":
+                    errorName = "ReadDwfFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1532":
+                    errorName = "WriteCSVFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1533":
+                    errorName = "WriteTDLFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1534":
+                    errorName = "WriteXmlFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1535":
+                    errorName = "WriteDwfFileFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1536":
+                    errorName = "AttachmentNotFound";
+                    errorDescription = "";
+                    return;
+
+                case "1537":
+                    errorName = "AddERPFileToStoreFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1538":
+                    errorName = "GetERPFileFromStoreFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1539":
+                    errorName = "InvalidMappingInfo";
+                    errorDescription = "";
+                    return;
+
+                case "1540":
+                    errorName = "CreateTempItemsAndBOMFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1541":
+                    errorName = "UpdateTempItemsAndBOMFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1542":
+                    errorName = "CommitItemsAndBOMFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1543":
+                    errorName = "GetItemPropertiesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1544":
+                    errorName = "GetExportItemInfoFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1545":
+                    errorName = "GetERPPackageFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1546":
+                    errorName = "ExportToERPFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1547":
+                    errorName = "GetImportJobsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1548":
+                    errorName = "GetFileFromJobFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1549":
+                    errorName = "InvalidFileType";
+                    errorDescription = "";
+                    return;
+
+                case "1550":
+                    errorName = "DirectoryNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "1551":
+                    errorName = "BomStructureEmpty";
+                    errorDescription = "";
+                    return;
+
+                case "1552":
+                    errorName = "ItemStructureEmpty";
+                    errorDescription = "";
+                    return;
+
+                case "1553":
+                    errorName = "DataMapEmpty";
+                    errorDescription = "";
+                    return;
+
+                case "1554":
+                    errorName = "SendResultsEmailFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1555":
+                    errorName = "SendResultsEmailAttachmentsError";
+                    errorDescription = "";
+                    return;
+
+                case "1600":
+                    errorName = "StateHasChanged";
+                    errorDescription = "The state has changed since the last refresh so the action is not valid.";
+                    return;
+
+                case "1601":
+                    errorName = "ActionDenied";
+                    errorDescription = "OBSOLETE";
+                    return;
+
+                case "1602":
+                    errorName = "UpdateDenied";
+                    errorDescription = "";
+                    return;
+
+                case "1603":
+                    errorName = "BadApproveDeadline";
+                    errorDescription = "The approval deadline is in the past";
+                    return;
+
+                case "1604":
+                    errorName = "BadChangeOrderId";
+                    errorDescription = "No such change order exists with the specified ID";
+                    return;
+
+                case "1605":
+                    errorName = "BadNumberingSchemeId";
+                    errorDescription = "No such numbering scheme exists for change orders with the specified ID";
+                    return;
+
+                case "1606":
+                    errorName = "BadRoutingId";
+                    errorDescription = "No routing exists for the change order process with the specified ID";
+                    return;
+
+                case "1607":
+                    errorName = "ChangeOrderNumberExists";
+                    errorDescription = "Cannot add a change order since the change order number already exists.";
+                    return;
+
+                case "1608":
+                    errorName = "GetChangeOrderFailed";
+                    errorDescription = "Could not find the specified change order";
+                    return;
+
+                case "1609":
+                    errorName = "AddChangeOrderFailed";
+                    errorDescription = "Unable to add change order";
+                    return;
+
+                case "1610":
+                    errorName = "MissingMasterItemId";
+                    errorDescription = "";
+                    return;
+
+                case "1611":
+                    errorName = "ChangeOrderLocked";
+                    errorDescription = "The change order is locked by another user";
+                    return;
+
+                case "1612":
+                    errorName = "ItemOnAnotherChangeOrder";
+                    errorDescription = "The item is being managed by another change order";
+                    return;
+
+                case "1613":
+                    errorName = "AddChangeOrderTypeFailed";
+                    errorDescription = "A change order type defines a set of properties that should be attached to a change order.";
+                    return;
+
+                case "1614":
+                    errorName = "DuplicateNumberSchemeName";
+                    errorDescription = "";
+                    return;
+
+                case "1615":
+                    errorName = "NumberingSchemeInUse";
+                    errorDescription = "";
+                    return;
+
+                case "1616":
+                    errorName = "GetAllChangeOrderTypesFailed";
+                    errorDescription = "Could not get change order types";
+                    return;
+
+                case "1617":
+                    errorName = "UpdateChangeOrderTypeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1618":
+                    errorName = "GetChangeOrderNumberFailed";
+                    errorDescription = "Could not get a number for a change order";
+                    return;
+
+                case "1619":
+                    errorName = "GetNumberingSchemesFailed";
+                    errorDescription = "Could not get change order numbering schemes";
+                    return;
+
+                case "1620":
+                    errorName = "SetDefaultNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1621":
+                    errorName = "ActivateNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1622":
+                    errorName = "DeactivateNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1623":
+                    errorName = "AddNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1624":
+                    errorName = "UpdateNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1625":
+                    errorName = "DeleteNumberingSchemeFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1626":
+                    errorName = "DeleteUserDefinedPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1627":
+                    errorName = "GetUserDefinedPropertyDefinitionIdsByChangeOrderTypeIdFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1628":
+                    errorName = "CannotEditItem";
+                    errorDescription = "Cannot make item on change order editable";
+                    return;
+
+                case "1629":
+                    errorName = "SetChangeOrderItemEditableFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1630":
+                    errorName = "OwnerMustBeChangeRequestor";
+                    errorDescription = "The change order creator cannot have change requestor role revoked.";
+                    return;
+
+                case "1631":
+                    errorName = "NonChangeRequestorDenied";
+                    errorDescription = "You must have the Change Requestor role on this change order's routing to perform the operation.";
+                    return;
+
+                case "1632":
+                    errorName = "NumberingSchemeIsDefault";
+                    errorDescription = "";
+                    return;
+
+                case "1633":
+                    errorName = "RestrictionsOccurred";
+                    errorDescription = "Restrictions have occurred. More information available in SoapException detail.";
+                    return;
+
+                case "1634":
+                    errorName = "ItemObsolete";
+                    errorDescription = "You cannot add obsolete items to a change order";
+                    return;
+
+                case "1635":
+                    errorName = "GetChangeOrderNumberSchemeStartFailed";
+                    errorDescription = "used as IDS_NUMBERINGSCHEME_GET_STARTNUMBER_FAILED in Change Order world.";
+                    return;
+
+                case "1636":
+                    errorName = "GetChangeOrderNumberSchemeStartFailedProviderDoesNotSupport";
+                    errorDescription = "used as IDS_NUMBERINGSCHEME_GET_STARTNUMBER_PROVIDER_ERROR in Change Order world.";
+                    return;
+
+                case "1637":
+                    errorName = "SetChangeOrderNumberSchemeStartFailed";
+                    errorDescription = "used as IDS_NUMBERINGSCHEME_SET_STARTNUMBER_FAILED in Change Order world.";
+                    return;
+
+                case "1638":
+                    errorName = "SetChangeOrderNumberSchemeStartFailedProviderDoesNotSupport";
+                    errorDescription = "used as IDS_NUMBERINGSCHEME_SET_STARTNUMBER_PROVIDER_ERROR in Change Order world.";
+                    return;
+
+                case "1639":
+                    errorName = "SetChangeOrderNumberSchemeStartFailedStartNumberMustBeGreaterThanCurrent";
+                    errorDescription = "used as IDS_NUMBERINGSCHEME_SET_STARTNUMBER_LESS_ERROR in Change Order world.";
+                    return;
+
+                case "1640":
+                    errorName = "GetChangeOrderNumberFailedAutoFieldNumberUsedUp";
+                    errorDescription = "used as IDS_CHANGEORDER_CREATE_FAILED in Change Order world.";
+                    return;
+
+                case "1641":
+                    errorName = "GetRollbackItemLifeCycleStatesInfoFailed";
+                    errorDescription = "Could not retreive rollback information.";
+                    return;
+
+                case "1642":
+                    errorName = "RollbackItemLifeCycleStatesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1643":
+                    errorName = "RollbackItemLifeCycleStatesCancelFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1644":
+                    errorName = "ChangeOrderNotActive";
+                    errorDescription = "";
+                    return;
+
+                case "1645":
+                    errorName = "ItemNotOnChangeOrder";
+                    errorDescription = "";
+                    return;
+
+                case "1646":
+                    errorName = "GetUserDefinedPropertyDefinitionIdsByChangeOrderTypeIdFailed";
+                    errorDescription = "Could not get item related user defined property definitions for change order type.";
+                    return;
+
+                case "1647":
+                    errorName = "DeleteChangeOrderFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1648":
+                    errorName = "NonResponsibleEngineerDenied";
+                    errorDescription = "";
+                    return;
+
+                case "1649":
+                    errorName = "GetAllPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1652":
+                    errorName = "AddCustomPropertyDefFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1656":
+                    errorName = "InappropriateRouting";
+                    errorDescription = "";
+                    return;
+
+                case "1657":
+                    errorName = "IllegalNullParam";
+                    errorDescription = "";
+                    return;
+
+                case "1664":
+                    errorName = "GetRequireReviewLifeCycleStateBeforeChangeOrderReviewFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1665":
+                    errorName = "SetRequireReviewLifeCycleStateBeforeChangeOrderReviewFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1679":
+                    errorName = "ItemlessChangeOrder";
+                    errorDescription = "";
+                    return;
+
+                case "1688":
+                    errorName = "CheckoutFileToChangeOrder";
+                    errorDescription = "";
+                    return;
+
+                case "1689":
+                    errorName = "FileOnAnotherChangeOrder";
+                    errorDescription = "";
+                    return;
+
+                case "1690":
+                    errorName = "ChangeOrderWithCheckoutFileCannotCloseOrCancel";
+                    errorDescription = "";
+                    return;
+
+                case "1691":
+                    errorName = "DeleteItemUserDefinedPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1809":
+                    errorName = "ReportWriteFailure";
+                    errorDescription = "";
+                    return;
+
+                case "1810":
+                    errorName = "GenerateReportFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1811":
+                    errorName = "GetTemplatePropertiesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "1812":
+                    errorName = "InvalidParentChildInstanceProperty";
+                    errorDescription = "";
+                    return;
+
+                case "1813":
+                    errorName = "MissingPageReference";
+                    errorDescription = "";
+                    return;
+
+                case "1814":
+                    errorName = "MissingPageDetailsReference";
+                    errorDescription = "";
+                    return;
+
+                case "1815":
+                    errorName = "MissingDetailReference";
+                    errorDescription = "";
+                    return;
+
+                case "1816":
+                    errorName = "MissingCoverPageReference";
+                    errorDescription = "";
+                    return;
+
+                case "1817":
+                    errorName = "InequableAmountOfColumns";
+                    errorDescription = "";
+                    return;
+
+                case "1818":
+                    errorName = "InvalidPageSize";
+                    errorDescription = "";
+                    return;
+
+                case "1819":
+                    errorName = "MissingGroupHeader";
+                    errorDescription = "";
+                    return;
+
+                case "1820":
+                    errorName = "MissingGroupFooter";
+                    errorDescription = "";
+                    return;
+
+                case "1821":
+                    errorName = "InvalidData";
+                    errorDescription = "";
+                    return;
+
+                case "1822":
+                    errorName = "MissingPropertiesReference";
+                    errorDescription = "";
+                    return;
+
+                case "1823":
+                    errorName = "InvalidAmountOfColumnsInPropsSection";
+                    errorDescription = "";
+                    return;
+
+                case "1824":
+                    errorName = "PropertyLabelMustBeUnique";
+                    errorDescription = "";
+                    return;
+
+                case "1825":
+                    errorName = "InvalidPropertyDataType";
+                    errorDescription = "";
+                    return;
+
+                case "1826":
+                    errorName = "InvalidPropertySource";
+                    errorDescription = "";
+                    return;
+
+                case "1827":
+                    errorName = "InvalidReportProperty";
+                    errorDescription = "";
+                    return;
+
+                case "1828":
+                    errorName = "InvalidSystemProperty";
+                    errorDescription = "";
+                    return;
+
+                case "1829":
+                    errorName = "InvalidGroupDetail";
+                    errorDescription = "";
+                    return;
+
+                case "1830":
+                    errorName = "CellOutOfRangeError";
+                    errorDescription = "";
+                    return;
+
+                case "1831":
+                    errorName = "SectionHasTooManyRows";
+                    errorDescription = "";
+                    return;
+
+                case "1832":
+                    errorName = "InvalidInstanceProperty";
+                    errorDescription = "";
+                    return;
+
+                case "1833":
+                    errorName = "InvalidCalculatedProperty";
+                    errorDescription = "";
+                    return;
+
+                case "1834":
+                    errorName = "InvalidPropertyQualifier";
+                    errorDescription = "";
+                    return;
+
+                case "1835":
+                    errorName = "CircularReference";
+                    errorDescription = "";
+                    return;
+
+                case "1836":
+                    errorName = "PropertyLabelEmptyError";
+                    errorDescription = "";
+                    return;
+
+                case "2000":
+                    errorName = "PublishPackageFailed";
+                    errorDescription = "";
+                    return;
+
+                case "2001":
+                    errorName = "PublishDataAlreadyExists";
+                    errorDescription = "An attempt to publish new data failed because it would overwrite existing data";
+                    return;
+
+                case "2002":
+                    errorName = "PublishOutOfSyncObject";
+                    errorDescription = "An attempt to re-publish data failed because it has become out of date.";
+                    return;
+
+                case "2003":
+                    errorName = "PublishLinkToSelf";
+                    errorDescription = "";
+                    return;
+
+                case "2010":
+                    errorName = "WriteLibraryInfoFailed";
+                    errorDescription = "An error occurred while trying to write LibraryInfo object to library.";
+                    return;
+
+                case "2011":
+                    errorName = "ReadLibraryInfoFailed";
+                    errorDescription = "An error occurred while trying to read LibraryInfo object from library.";
+                    return;
+
+                case "2012":
+                    errorName = "LibraryIdNotFound";
+                    errorDescription = "The specified library ID was not found.";
+                    return;
+
+                case "2019":
+                    errorName = "InvalidFamilyAspect";
+                    errorDescription = "The specified aspect name is either not supported or is being used improperly.";
+                    return;
+
+                case "2020":
+                    errorName = "ObjectDataNotFound";
+                    errorDescription = "An attempt to get or delete the specified object data, or to get its version failed because no such object exists.";
+                    return;
+
+                case "2021":
+                    errorName = "AddCategory_ParentNotFound";
+                    errorDescription = "An attempt to add a child category failed because its parent does not exist.";
+                    return;
+
+                case "2022":
+                    errorName = "UpdateCategory_CategoryNotFound";
+                    errorDescription = "";
+                    return;
+
+                case "2023":
+                    errorName = "AttachLibrary_GeneralFailure";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2024":
+                    errorName = "AttachLibrary_CheckFileExistence";
+                    errorDescription = "";
+                    return;
+
+                case "2025":
+                    errorName = "AttachLibrary_DataFileNotFound";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2026":
+                    errorName = "AttachLibrary_InitializeRolesAndPermissions";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2027":
+                    errorName = "AttachLibrary_AttachKnowledgeVault";
+                    errorDescription = "";
+                    return;
+
+                case "2028":
+                    errorName = "AttachLibrary_ReadLibraryInfo";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2029":
+                    errorName = "AttachLibrary_MissingLibraryInfo";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2030":
+                    errorName = "AttachLibrary_PrepareKnowledgeVaultMetaData";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2031":
+                    errorName = "AttachLibrary_WriteKnowledgeVaultMetaData";
+                    errorDescription = "";
+                    return;
+
+                case "2032":
+                    errorName = "AttachLibrary_UpdateLibraryUsers";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2033":
+                    errorName = "CreateLibrary_GeneralFailure";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2034":
+                    errorName = "CreateLibrary_InitializeRolesAndPermissions";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2035":
+                    errorName = "CreateLibrary_AddKnowledgeVault";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2036":
+                    errorName = "CreateLibrary_PrepareLibraryInfo";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2037":
+                    errorName = "CreateLibrary_WriteLibraryInfo";
+                    errorDescription = "";
+                    return;
+
+                case "2038":
+                    errorName = "CreateLibrary_PrepareKnowledgeVaultMetaData";
+                    errorDescription = "";
+                    return;
+
+                case "2039":
+                    errorName = "CreateLibrary_WriteKnowledgeVaultMetaData";
+                    errorDescription = "";
+                    return;
+
+                case "2040":
+                    errorName = "CreateLibrary_UpdateLibraryUsers";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2041":
+                    errorName = "UpdateLibraryUsers_MissingUsers";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2042":
+                    errorName = "UpdateLibraryUsers_AddFailed";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2043":
+                    errorName = "DetachLibrary_DatabaseNotFound";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2044":
+                    errorName = "TableOfContents_NoLanguageSpecified";
+                    errorDescription = "A null or empty lang string was passed to GetTableOfContents";
+                    return;
+
+                case "2045":
+                    errorName = "CreateLibrary_AlreadyExists";
+                    errorDescription = "Unused";
+                    return;
+
+                case "2050":
+                    errorName = "InvalidSchema_NotCompiled";
+                    errorDescription = "";
+                    return;
+
+                case "2051":
+                    errorName = "InvalidSchema_NoNamespace";
+                    errorDescription = "";
+                    return;
+
+                case "2052":
+                    errorName = "InvalidSchema_UnsupportedRestriction";
+                    errorDescription = "";
+                    return;
+
+                case "2053":
+                    errorName = "InvalidSchema_UnsupportedSimpleType";
+                    errorDescription = "";
+                    return;
+
+                case "2054":
+                    errorName = "InvalidSchema_UnsupportedRestrictionType";
+                    errorDescription = "";
+                    return;
+
+                case "2055":
+                    errorName = "InvalidSchema_UnsupportedDataType";
+                    errorDescription = "";
+                    return;
+
+                case "2056":
+                    errorName = "InvalidQuery_MissingRootNode";
+                    errorDescription = "Search was not called with proper query xml";
+                    return;
+
+                case "2057":
+                    errorName = "InvalidQuery_NoReturnValues";
+                    errorDescription = "Search did not specify anything to return";
+                    return;
+
+                case "2058":
+                    errorName = "InvalidQuery_MissingFieldSpecifier";
+                    errorDescription = "";
+                    return;
+
+                case "2059":
+                    errorName = "InvalidQuery_UnsupportedDataType";
+                    errorDescription = "";
+                    return;
+
+                case "2060":
+                    errorName = "InvalidQuery_MissingReturnProperty";
+                    errorDescription = "Search did not fully specify a return value";
+                    return;
+
+                case "2061":
+                    errorName = "InvalidQuery_DuplicateReference";
+                    errorDescription = "Search specified a duplicate reference in a return value";
+                    return;
+
+                case "2062":
+                    errorName = "InvalidQuery_InvalidFieldReference";
+                    errorDescription = "Search referenced a return value that does not exist";
+                    return;
+
+                case "2063":
+                    errorName = "InvalidQuery_MissingOperator";
+                    errorDescription = "Search constraint did not specifiy an operator";
+                    return;
+
+                case "2064":
+                    errorName = "InvalidQuery_MissingSearchCriterion";
+                    errorDescription = "Search constraint did not specify a value";
+                    return;
+
+                case "2065":
+                    errorName = "InvalidQuery_MissingPropertyRelation";
+                    errorDescription = "";
+                    return;
+
+                case "2066":
+                    errorName = "InvalidQuery_UnsupportedSystemProperty";
+                    errorDescription = "Search returns or is constrained by a a property that does not exist";
+                    return;
+
+                case "2067":
+                    errorName = "InvalidQuery_InvalidSchemaNamespace";
+                    errorDescription = "";
+                    return;
+
+                case "2068":
+                    errorName = "InvalidQuery_InvalidProperty";
+                    errorDescription = "";
+                    return;
+
+                case "2069":
+                    errorName = "InvalidQuery_InvalidRelation";
+                    errorDescription = "";
+                    return;
+
+                case "2070":
+                    errorName = "Resource_MissingResourceID";
+                    errorDescription = "";
+                    return;
+
+                case "2071":
+                    errorName = "Resource_StringsNotFound";
+                    errorDescription = "";
+                    return;
+
+                case "2072":
+                    errorName = "Resource_LocaleNotFound";
+                    errorDescription = "";
+                    return;
+
+                case "2073":
+                    errorName = "InvalidResource_MissingRootNode";
+                    errorDescription = "";
+                    return;
+
+                case "2074":
+                    errorName = "InvalidResource_LocaleMismatch";
+                    errorDescription = "";
+                    return;
+
+                case "2075":
+                    errorName = "InvalidResource_MissingLocale";
+                    errorDescription = "";
+                    return;
+
+                case "2076":
+                    errorName = "QueryExecutionError";
+                    errorDescription = "Search resulted in a SQL error";
+                    return;
+
+                case "2077":
+                    errorName = "InternalError";
+                    errorDescription = "";
+                    return;
+
+                case "2078":
+                    errorName = "InvalidQuery_UnknownCategoryParameter";
+                    errorDescription = "Search contained an unknown category parameter";
+                    return;
+
+                case "2079":
+                    errorName = "InvalidQuery_InvalidNumberOfValues";
+                    errorDescription = "";
+                    return;
+
+                case "3002":
+                    errorName = "FailedToFindPropertyDefinition";
+                    errorDescription = "";
+                    return;
+
+                case "3003":
+                    errorName = "InvalidParameterInput";
+                    errorDescription = "";
+                    return;
+
+                case "3004":
+                    errorName = "InternalError";
+                    errorDescription = "";
+                    return;
+
+                case "3005":
+                    errorName = "UnknownEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "3006":
+                    errorName = "UnknownEntityClassId";
+                    errorDescription = "";
+                    return;
+
+                case "3007":
+                    errorName = "UnknownPropertyDefinitionId";
+                    errorDescription = "";
+                    return;
+
+                case "3008":
+                    errorName = "InvalidPropertyDefDataTypeMapping";
+                    errorDescription = "";
+                    return;
+
+                case "3009":
+                    errorName = "EntityDataCreationFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3100":
+                    errorName = "BadLifecycleDefinitionId";
+                    errorDescription = "";
+                    return;
+
+                case "3101":
+                    errorName = "BadStateId";
+                    errorDescription = "";
+                    return;
+
+                case "3102":
+                    errorName = "BadTransitionId";
+                    errorDescription = "";
+                    return;
+
+                case "3104":
+                    errorName = "AddLifeCycleStateTransitionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3105":
+                    errorName = "AddLifeCycleStateFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3106":
+                    errorName = "AddLifeCycleDefinitionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3107":
+                    errorName = "AddLifeCycleStateTransitionACLFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3108":
+                    errorName = "InvalidUserName";
+                    errorDescription = "";
+                    return;
+
+                case "3109":
+                    errorName = "CannotChangeDefinitionToItself";
+                    errorDescription = "";
+                    return;
+
+                case "3110":
+                    errorName = "InvalidDefinitionChange";
+                    errorDescription = "";
+                    return;
+
+                case "3111":
+                    errorName = "InvalidStateTransition";
+                    errorDescription = "";
+                    return;
+
+                case "3115":
+                    errorName = "DuplicatedStateDisplayName";
+                    errorDescription = "";
+                    return;
+
+                case "3116":
+                    errorName = "DuplicatedDefinitionDisplayName";
+                    errorDescription = "";
+                    return;
+
+                case "3120":
+                    errorName = "LifecycleDefinitionAlreadyExists";
+                    errorDescription = "";
+                    return;
+
+                case "3121":
+                    errorName = "LifecycleStateAlreadyExists";
+                    errorDescription = "";
+                    return;
+
+                case "3122":
+                    errorName = "LifecycleStateTransitionAlreadyExists";
+                    errorDescription = "";
+                    return;
+
+                case "3123":
+                    errorName = "RulePropDefDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "3124":
+                    errorName = "LifecycleDefinitionBeyondMaxLength";
+                    errorDescription = "";
+                    return;
+
+                case "3125":
+                    errorName = "TransitionSourceStateNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "3126":
+                    errorName = "TransitionDestinationStateNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "3127":
+                    errorName = "TransitionCrossLifecycleDefinition";
+                    errorDescription = "";
+                    return;
+
+                case "3300":
+                    errorName = "RevisionSequenceInUseCannotBeRemoved";
+                    errorDescription = "";
+                    return;
+
+                case "3304":
+                    errorName = "RevisionSequenceInUseCannotBeUpdated";
+                    errorDescription = "";
+                    return;
+
+                case "3306":
+                    errorName = "BadRevisionDefinitionId";
+                    errorDescription = "";
+                    return;
+
+                case "3307":
+                    errorName = "BadRevisionSequenceId";
+                    errorDescription = "";
+                    return;
+
+                case "3308":
+                    errorName = "RevisionSequenceDuplicateName";
+                    errorDescription = "";
+                    return;
+
+                case "3309":
+                    errorName = "RevisionDefinitionDuplicateName";
+                    errorDescription = "";
+                    return;
+
+                case "3310":
+                    errorName = "SeparatorNotValid";
+                    errorDescription = "";
+                    return;
+
+                case "3311":
+                    errorName = "SeparatorExistInRevisionSequence";
+                    errorDescription = "";
+                    return;
+
+                case "3312":
+                    errorName = "InvalidLabel";
+                    errorDescription = "";
+                    return;
+
+                case "3313":
+                    errorName = "RevisionLabelIsNullOrEmpty";
+                    errorDescription = "";
+                    return;
+
+                case "3314":
+                    errorName = "RevisionLabelBeyondMaxLength";
+                    errorDescription = "";
+                    return;
+
+                case "3315":
+                    errorName = "RevisionLabelDuplicate";
+                    errorDescription = "";
+                    return;
+
+                case "3316":
+                    errorName = "BadStartLabel";
+                    errorDescription = "";
+                    return;
+
+                case "3321":
+                    errorName = "InvalidDefinitionChange";
+                    errorDescription = "";
+                    return;
+
+                case "3322":
+                    errorName = "InvalidRevisionNumber";
+                    errorDescription = "";
+                    return;
+
+                case "3330":
+                    errorName = "GetRevisionDefinitionIdsByMasterIdsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3331":
+                    errorName = "GetNextRevisionNumbersByMasterIdsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3333":
+                    errorName = "SetRevisionNumberFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3334":
+                    errorName = "SetRevisionNumbersFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3335":
+                    errorName = "SetRevisionDefinitionAndNumbersFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3336":
+                    errorName = "GetAllRevisionDefinitionInfoFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3337":
+                    errorName = "GetRevisionDefinitionInfoByIdsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3338":
+                    errorName = "AddRevisionDefinitionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3339":
+                    errorName = "UpdateRevisionDefinitionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3340":
+                    errorName = "DeleteRevisionDefinitionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3341":
+                    errorName = "AddRevisionSequenceFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3342":
+                    errorName = "UpdateRevisionSequenceFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3343":
+                    errorName = "DeleteRevisionSequenceFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3344":
+                    errorName = "SystemRevisionSequenceNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "3345":
+                    errorName = "ImportRevisionDefinitionFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3346":
+                    errorName = "RevisionDefinitionAlreadyExists";
+                    errorDescription = "";
+                    return;
+
+                case "3500":
+                    errorName = "BehaviorClassDoesNotSupportRules";
+                    errorDescription = "";
+                    return;
+
+                case "3501":
+                    errorName = "UnknownBehaviorClass";
+                    errorDescription = "";
+                    return;
+
+                case "3502":
+                    errorName = "UnknownBehaviorClassId";
+                    errorDescription = "";
+                    return;
+
+                case "3503":
+                    errorName = "FailureToGetBehaviorType";
+                    errorDescription = "";
+                    return;
+
+                case "3504":
+                    errorName = "FailureToCreateBehaviorClassInstance";
+                    errorDescription = "";
+                    return;
+
+                case "3505":
+                    errorName = "FailureToGetPropertySetId";
+                    errorDescription = "";
+                    return;
+
+                case "3506":
+                    errorName = "BehaviorClassFailedToProvideBehaviorView";
+                    errorDescription = "";
+                    return;
+
+                case "3507":
+                    errorName = "UnknownBehavior";
+                    errorDescription = "";
+                    return;
+
+                case "3508":
+                    errorName = "BehaviorCannotBeAssignedAsDefault";
+                    errorDescription = "";
+                    return;
+
+                case "3509":
+                    errorName = "BehaviorAlreadyAssocToEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "3510":
+                    errorName = "UnknownEntityAssocTable";
+                    errorDescription = "";
+                    return;
+
+                case "3511":
+                    errorName = "InvalidBehaviorsForAssocToEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "3512":
+                    errorName = "TooManyDefaultBehavoirsAssigned";
+                    errorDescription = "";
+                    return;
+
+                case "3513":
+                    errorName = "ZeroDefaultBehaviorsNoAllowed";
+                    errorDescription = "";
+                    return;
+
+                case "3514":
+                    errorName = "UnknownBehaviorId";
+                    errorDescription = "";
+                    return;
+
+                case "3515":
+                    errorName = "CannotDeleteBehavior_InUseByEntity";
+                    errorDescription = "";
+                    return;
+
+                case "3516":
+                    errorName = "CannotDeleteBehavior_InUseByAnotherBehavior";
+                    errorDescription = "";
+                    return;
+
+                case "3517":
+                    errorName = "CannotDeleteBehavior_ItIsAnEntityClassDefault";
+                    errorDescription = "";
+                    return;
+
+                case "3518":
+                    errorName = "CannotDeleteBehavior_ReasonUnknown";
+                    errorDescription = "";
+                    return;
+
+                case "3519":
+                    errorName = "UnknownBehaviorIdOrIsNotAssocToEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "3700":
+                    errorName = "UnknownCategoryId";
+                    errorDescription = "";
+                    return;
+
+                case "3701":
+                    errorName = "CategoryToCopyNotAssocToEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "3702":
+                    errorName = "FailureToFindCategoryRuleSet";
+                    errorDescription = "";
+                    return;
+
+                case "3703":
+                    errorName = "FailureToFindCategoryForEntity";
+                    errorDescription = "";
+                    return;
+
+                case "3704":
+                    errorName = "CategoryIdNotAssocToEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "3705":
+                    errorName = "CategoryAlreadyExists";
+                    errorDescription = "";
+                    return;
+
+                case "3706":
+                    errorName = "UnknownCategory";
+                    errorDescription = "";
+                    return;
+
+                case "3707":
+                    errorName = "EntityClassDoesNotSupportCategoryRules";
+                    errorDescription = "";
+                    return;
+
+                case "3708":
+                    errorName = "EntityIdDoesNotMatchEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "3709":
+                    errorName = "CategoryCfgCopyFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3710":
+                    errorName = "CategoryUpdateFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3900":
+                    errorName = "UpdatePropertyDefMappingsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3901":
+                    errorName = "DuplicateMapping";
+                    errorDescription = "";
+                    return;
+
+                case "3902":
+                    errorName = "NotUserDefinedPropertyDef";
+                    errorDescription = "";
+                    return;
+
+                case "3903":
+                    errorName = "SelfMapping";
+                    errorDescription = "";
+                    return;
+
+                case "3904":
+                    errorName = "NotFileIterationPropertyDef";
+                    errorDescription = "";
+                    return;
+
+                case "3905":
+                    errorName = "NotIndexedFileProperty";
+                    errorDescription = "";
+                    return;
+
+                case "3906":
+                    errorName = "GetUserDefinedPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3907":
+                    errorName = "UpdateUserDefinedPropertyDefFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3908":
+                    errorName = "UpdatePropertyValuesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3909":
+                    errorName = "GetPropertyDefDeleteRestrictionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3910":
+                    errorName = "DeletePropertyDefsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3911":
+                    errorName = "AddOrRemovePropertyFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3912":
+                    errorName = "AddPropertyConstraintsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3913":
+                    errorName = "UpdatePropertyConstraintsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3914":
+                    errorName = "DeletePropertyConstraintsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3915":
+                    errorName = "GetPropertyConstraintFailuresFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3916":
+                    errorName = "CreateUserDefinedPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3917":
+                    errorName = "InvalidOperationOnSpecificConstraintType";
+                    errorDescription = "";
+                    return;
+
+                case "3918":
+                    errorName = "DuplicateDisplayName";
+                    errorDescription = "";
+                    return;
+
+                case "3919":
+                    errorName = "GetPropertyDefinitionsFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3920":
+                    errorName = "EntityClassIdDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "3921":
+                    errorName = "UserDefinedPropertyDefIdDoesNotExist";
+                    errorDescription = "";
+                    return;
+
+                case "3922":
+                    errorName = "UserDefinedPropertyDefIdHasAnAssignedEntityClass";
+                    errorDescription = "";
+                    return;
+
+                case "3923":
+                    errorName = "DisplayNameCollision";
+                    errorDescription = "";
+                    return;
+
+                case "3924":
+                    errorName = "InvalidMappingTarget_TOPropertyIsReadOnly";
+                    errorDescription = "Certain Inventor file properties are read-only.  Trying to write to them will throw exceptions (from Inventor APIs), so we should not allow mappings TO them. ";
+                    return;
+
+                case "3925":
+                    errorName = "InvalidMapping_DifferentDatatypes";
+                    errorDescription = "";
+                    return;
+
+                case "3926":
+                    errorName = "CheckCompliancesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "3929":
+                    errorName = "InvalidMappingTarget_FROMProperty";
+                    errorDescription = "Not all property definitions can be used as from mapping targets.";
+                    return;
+
+                case "3930":
+                    errorName = "InvalidMappingTarget_TOProperty";
+                    errorDescription = "Not all property definitions can be used as to mapping targets.";
+                    return;
+
+                case "3931":
+                    errorName = "NonCompliantConstraintWithDefaultValue";
+                    errorDescription = "New constraint can't be added or new default vaule can't be updated if the default value is not compliant with it.";
+                    return;
+
+                case "3932":
+                    errorName = "UpdatedValueNotIncludedInList";
+                    errorDescription = "The updated property value must be one of the value list for property definition of list type.";
+                    return;
+
+                case "3933":
+                    errorName = "UpdatePropertiesFailed";
+                    errorDescription = "";
+                    return;
+
+                case "4000":
+                    errorName = "InputConfigSectionCanNotBeNull";
+                    errorDescription = "";
+                    return;
+
+                case "4001":
+                    errorName = "InvalidPropertySetGUID";
+                    errorDescription = "";
+                    return;
+
+                case "4002":
+                    errorName = "UDPDefintionNameCanNotBeEmpty";
+                    errorDescription = "";
+                    return;
+
+                case "4003":
+                    errorName = "UserDefinedPropertyDefaultValueRequired";
+                    errorDescription = "";
+                    return;
+
+                case "4004":
+                    errorName = "ValueExpressionNotParseable";
+                    errorDescription = "";
+                    return;
+
+                case "4400":
+                    errorName = "NoSitesInWorkgroupToRequestOwnership";
+                    errorDescription = "";
+                    return;
+
+                case "4401":
+                    errorName = "LeaseNotUp";
+                    errorDescription = "";
+                    return;
+
+                case "4402":
+                    errorName = "ErrorsWhileTransferringOwnership";
+                    errorDescription = "";
+                    return;
+
+                case "4403":
+                    errorName = "UnknownWorkgroup";
+                    errorDescription = "";
+                    return;
+
+                case "4405":
+                    errorName = "WorkgroupNotEntityOwner";
+                    errorDescription = "";
+                    return;
+
+                case "4407":
+                    errorName = "WorkgroupNotAdminOwner";
+                    errorDescription = "";
+                    return;
+
+                case "4408":
+                    errorName = "WorkgroupIsPublisher";
+                    errorDescription = "";
+                    return;
+
+                case "4410":
+                    errorName = "WorkgroupExists";
+                    errorDescription = "";
+                    return;
+
+                case "4411":
+                    errorName = "NotFullSQL";
+                    errorDescription = "";
+                    return;
+
+                case "4412":
+                    errorName = "ConfigurationError";
+                    errorDescription = "";
+                    return;
+
+                case "4413":
+                    errorName = "ReplicationEnabled";
+                    errorDescription = "";
+                    return;
+
+                case "4414":
+                    errorName = "SubscribingWorkgroups";
+                    errorDescription = "";
+                    return;
+
+                case "4415":
+                    errorName = "SubscriberCleanupError";
+                    errorDescription = "";
+                    return;
+
+                case "4416":
+                    errorName = "ReplicationNotEnabled";
+                    errorDescription = "";
+                    return;
+
+                case "4417":
+                    errorName = "SubscriptionNotActive";
+                    errorDescription = "";
+                    return;
+
+                case "4418":
+                    errorName = "ServerConnectionFailureOrChangesPending";
+                    errorDescription = "";
+                    return;
+
+                case "4419":
+                    errorName = "DatabaseReplicationEnabled";
+                    errorDescription = "";
+                    return;
+
+                case "4420":
+                    errorName = "WorkgroupIsSubscriber";
+                    errorDescription = "";
+                    return;
+
+                case "4421":
+                    errorName = "SubscriberSqlVersionMismatch";
+                    errorDescription = "";
+                    return;
+
+                case "4423":
+                    errorName = "OtherEntityInGroupNotTransferrable";
+                    errorDescription = "";
+                    return;
+
+                case "4424":
+                    errorName = "DatabaseNotReplicated";
+                    errorDescription = "";
+                    return;
+
+                case "4425":
+                    errorName = "DatabaseInvalidCharacters";
+                    errorDescription = "";
+                    return;
+
+                case "4600":
+                    errorName = "InvalidSystemName";
+                    errorDescription = "Systems names set through the API must be a GUID, \"D\" format.";
+                    return;
+
+                case "4601":
+                    errorName = "DatabaseTakeOnlineFailed";
+                    errorDescription = "";
+                    return;
+
+                case "4602":
+                    errorName = "InvalidSearchOperation";
+                    errorDescription = "";
+                    return;
+
+                case "8000":
+                    errorName = "TicketInvalid";
+                    errorDescription = "";
+                    return;
+
+                case "8001":
+                    errorName = "CannotSyncConfiguration";
+                    errorDescription = "";
+                    return;
+
+                case "8002":
+                    errorName = "FileMissingFromStore";
+                    errorDescription = "";
+                    return;
+
+                case "8003":
+                    errorName = "DataManagerNotConfigured";
+                    errorDescription = "";
+                    return;
+
+                case "8004":
+                    errorName = "SiteSigninError";
+                    errorDescription = "";
+                    return;
+
+                case "8005":
+                    errorName = "WebServiceError";
+                    errorDescription = "";
+                    return;
+
+                case "8006":
+                    errorName = "UnregisteredExternalFileUploader";
+                    errorDescription = "";
+                    return;
+
+                case "8007":
+                    errorName = "ExternalFileUploaderNotInstalled";
+                    errorDescription = "";
+                    return;
+
+                case "8008":
+                    errorName = "UploadExternalFileFailed";
+                    errorDescription = "";
+                    return;
+            }
+        }
+
+        private static void WriteCodeLine(string codeline)
+        {
+            File.AppendAllText(@"C:\Code.txt", codeline + "\r\n");
+        }
+    }
+}
+

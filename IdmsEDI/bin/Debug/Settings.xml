@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Settings>
+  <VaultUserName>VAULTPROCESS</VaultUserName>
+  <VaultUserPassword>VAULTPROCESS</VaultUserPassword>
+  <VaultServer>BRAHMA</VaultServer>
+  <VaultDatabase>ISGEC_TEST</VaultDatabase>
+  <TempFolderPath>D:\Temp\Temp</TempFolderPath>
+  <PDFFolderPath>D:\Temp\PDF</PDFFolderPath>
+  <XMLFolderPath>D:\Temp\XML</XMLFolderPath>
+  <TitleBlockNames>PHI-Peru_A0,PHI-PERU_A1,PHI-PERU_A2,PHI-PERU_A3,PHI-PERU_A4,PHI-PID_IJT_A0,PHI-PID_IJT_A1,PHI-PID_IJT_A2,PHI-PID_IJT_A3,PHI-PID_IJT_A4,IJT_A0,IJT_A1,IJT_A2,IJT_A3,IJT_A4,IJT-A0,IJT-A1,IJT-A2,IJT-A3,IJT-A4,ISGEC_A0,ISGEC_A1,ISGEC_A2,ISGEC_A3,ISGEC_A4,SMD_A0,SMD_A1,SMD_A2,SMD_A3,SMD_A4,PROJECT_A0,PROJECT_A1,PROJECT_A2,PROJECT_A3,PROJECT_A4,ALSTOM_SHT_A1,AGECTITLE,A$C53787869,A$C35676AEC,phi-bhima_a1,phi-bhima_a2,phi-bhima_a3,phi-bhima_a4,phi-bhima_a0</TitleBlockNames>
+  <BAANBlockNames>BAAN_BLOCK</BAANBlockNames>
+  <PartItemBlockNames>MATLISTBLK,MATL_PART,BOM_9</PartItemBlockNames>
+  <ReferenceDrawingBlockNames>BOM_11</ReferenceDrawingBlockNames>
+  <JobFilePath>D:\Temp\JOB</JobFilePath>
+  <CreatePDFFiles>true</CreatePDFFiles>
+  <AutoCADVisible>false</AutoCADVisible>
+  <BaaNLive>True</BaaNLive>
+  <JoomlaLive>True</JoomlaLive>
+  <Testing>True</Testing>
+</Settings>
