@@ -755,6 +755,15 @@ Namespace SIS.EDI
       Dim oColediWTmtlD As TableCell = Nothing
       Dim oediWTmtlDs As List(Of SIS.EDI.ediTmtlD) = SIS.EDI.ediTmtlD.ediTmtlDSelectList(0, 9999, "", False, "", oVar.t_tran, "", "")
       If oediWTmtlDs.Count > 0 Then
+        Dim lbl As New System.Web.UI.WebControls.Label
+        With lbl
+          .Font.Bold = True
+          .Font.Size = FontUnit.Point(14)
+          .Text = "Standard Document in this transmittal will NOT be available for download. Please download/get it from Vault/Design department."
+          .Style.Add("margin-top", "15px")
+          .Style.Add("margin-left", "10px")
+        End With
+        form1.Controls.Add(lbl)
         Dim oTblhediWTmtlD As Table = New Table
         oTblhediWTmtlD.Width = 1000
         oTblhediWTmtlD.Style.Add("margin-top", "15px")
