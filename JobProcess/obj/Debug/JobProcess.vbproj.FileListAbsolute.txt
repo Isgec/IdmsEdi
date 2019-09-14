@@ -64,3 +64,4 @@ C:\Data\Projects15.NET\IdmsEDI\JobProcess\obj\Debug\JobProcess.vbproj.GenerateRe
 C:\Data\Projects15.NET\IdmsEDI\JobProcess\obj\Debug\JobProcess.dll
 C:\Data\Projects15.NET\IdmsEDI\JobProcess\obj\Debug\JobProcess.xml
 C:\Data\Projects15.NET\IdmsEDI\JobProcess\obj\Debug\JobProcess.pdb
+C:\Data\Projects15.NET\IdmsEDI\JobProcess\bin\Debug\itextsharp.dll

@@ -16,7 +16,7 @@
   <AutoCADVisible>false</AutoCADVisible>
   <BaaNLive>true</BaaNLive>
   <JoomlaLive>true</JoomlaLive>
-  <Testing>true</Testing>
+  <Testing>false</Testing>
   <StartupPath>C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug</StartupPath>
   <JobPathWorking>D:\Temp\JOB\Working</JobPathWorking>
   <SerializedAt>C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\jpConfig.xml</SerializedAt>

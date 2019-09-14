@@ -44,6 +44,19 @@ Namespace SIS.EDI
     Private _t_Refcntd As Int32 = 0
     Private _t_Refcntu As Int32 = 0
     Private _t_edif As Int32 = 0
+    Public Property t_tfld As Integer = 0
+    Public Function getDMSFolderID() As Integer
+      Dim mRet As Integer = 0
+      Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
+        Using Cmd As SqlCommand = Con.CreateCommand()
+          Cmd.CommandType = CommandType.Text
+          Cmd.CommandText = "select isnull(t_tfid,0) as tfid from tdmisg015200 where t_type=" & t_type & " and t_cprj='" & t_dprj & "' and t_srno=" & t_tfld
+          Con.Open()
+          mRet = Cmd.ExecuteScalar
+        End Using
+      End Using
+      Return mRet
+    End Function
     Public Property t_tran() As String
       Get
         Return _t_tran
@@ -758,7 +771,7 @@ Namespace SIS.EDI
         Dim lbl As New System.Web.UI.WebControls.Label
         With lbl
           .Font.Bold = True
-          .Font.Size = FontUnit.Point(14)
+          .Font.Size = FontUnit.Point(12)
           .Text = "Standard Document in this transmittal will NOT be available for download. Please download/get it from Vault/Design department."
           .Style.Add("margin-top", "15px")
           .Style.Add("margin-left", "10px")

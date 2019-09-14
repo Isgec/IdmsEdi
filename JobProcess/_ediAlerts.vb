@@ -183,7 +183,8 @@ Namespace SIS.EDI
       End If
       Return x
     End Function
-    Public Shared Function TmtlAlert(ByVal TransmittalID As String) As Boolean
+    Public Shared Function TmtlAlert(ByVal TransmittalID As String) As String
+      Dim documentBody As String = ""
       Dim oTmtl As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.ediTmtlHGetByID(TransmittalID)
 
       Dim aErr As New ArrayList
@@ -192,9 +193,23 @@ Namespace SIS.EDI
       Dim oMsg As System.Net.Mail.MailMessage = New System.Net.Mail.MailMessage()
       oClient.Credentials = New Net.NetworkCredential("adskvaultadmin", "isgec@123")
 
-      Dim Issuer As emp = emp.GetEmp(oTmtl.t_isby)
-      Dim Approver As emp = emp.GetEmp(oTmtl.t_apsu)
-      Dim Creator As emp = emp.GetEmp(oTmtl.t_user)
+      Dim Issuer As emp = Nothing
+      Try
+        Issuer = emp.GetEmp(oTmtl.t_isby)
+      Catch ex As Exception
+      End Try
+      Dim Approver As emp = Nothing
+      Try
+        Approver = emp.GetEmp(oTmtl.t_apsu)
+      Catch ex As Exception
+
+      End Try
+      Dim Creator As emp = Nothing
+      Try
+        Creator = emp.GetEmp(oTmtl.t_user)
+      Catch ex As Exception
+
+      End Try
       With oMsg
         .Subject = "Download Documents of Transmittal: " & TransmittalID
         Dim EMailIDError As String = ""
@@ -322,28 +337,29 @@ Namespace SIS.EDI
         Header &= "<html xmlns=""http://www.w3.org/1999/xhtml"">"
         Header &= "<head>"
         Header &= "<title></title>"
-        Header &= "<style>"
-        Header &= "table{"
+        'Header &= "<style>"
+        'Header &= "table{"
 
-        Header &= "border: solid 1pt black;"
-        Header &= "border-collapse:collapse;"
-        Header &= "font-family: Tahoma;}"
+        'Header &= "border: solid 1pt black;"
+        'Header &= "border-collapse:collapse;"
+        'Header &= "font-family: Tahoma;}"
 
-        Header &= "td{"
-        Header &= "border: solid 1pt black;"
-        Header &= "font-family: Tahoma;"
-        Header &= "font-size: 12px;"
-        Header &= "padding: 2px 2px 4px 4px;"
-        Header &= "vertical-align:middle;}"
+        'Header &= "td{"
+        'Header &= "border: solid 1pt black;"
+        'Header &= "font-family: Tahoma;"
+        'Header &= "font-size: 12px;"
+        'Header &= "padding: 2px 2px 4px 4px;"
+        'Header &= "vertical-align:middle;}"
 
-        Header &= "a{"
-        Header &= "color: white;}"
-        Header &= "a:hover{"
-        Header &= "color: hotpink;}"
+        'Header &= "a{"
+        'Header &= "color: white;}"
+        'Header &= "a:hover{"
+        'Header &= "color: hotpink;}"
 
-        Header &= "</style>"
+        'Header &= "</style>"
         Header &= "</head>"
         Header &= "<body>"
+        documentBody = Header
         If aErr.Count > 0 Then
           Header &= "<br/>"
           Header &= "<br/>"
@@ -388,13 +404,21 @@ Namespace SIS.EDI
         Header &= "<br/>"
         Header &= tblStr
         Header &= "</body></html>"
+
+        documentBody &= "<br/>"
+        documentBody &= "<br/>"
+        documentBody &= tblStr
+        documentBody &= "</body></html>"
+
         .Body = Header
       End With
+      Dim strRet As String = ""
       Try
+        strRet = documentBody
         oClient.Send(oMsg)
       Catch ex As Exception
       End Try
-      Return True
+      Return strRet
     End Function
   End Class
 End Namespace

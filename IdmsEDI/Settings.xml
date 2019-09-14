@@ -16,5 +16,5 @@
   <AutoCADVisible>false</AutoCADVisible>
   <BaaNLive>True</BaaNLive>
   <JoomlaLive>True</JoomlaLive>
-  <Testing>True</Testing>
+  <Testing>False</Testing>
 </Settings>

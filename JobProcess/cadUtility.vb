@@ -29,12 +29,12 @@ Public Class cadUtility
     jpConfig = ConfigFile.Serialize(jpConfig, FileName)
     jp.msg("Creating CAD Object.")
     Try
-      acAppComObj = DirectCast(Activator.CreateInstance(Type.GetTypeFromProgID("AutoCAD.Application.20.1"), True), AcadApplication)
+      acAppComObj = DirectCast(Activator.CreateInstance(Type.GetTypeFromProgID("AutoCAD.Application.22"), True), AcadApplication)
     Catch exception As Exception
       jp.msg("Error : " & exception.Message)
       Thread.Sleep(SleepTime)
       jp.msg("2nd Try Creating CAD Object")
-      acAppComObj = DirectCast(Activator.CreateInstance(Type.GetTypeFromProgID("AutoCAD.Application.20.1"), True), AcadApplication)
+      acAppComObj = DirectCast(Activator.CreateInstance(Type.GetTypeFromProgID("AutoCAD.Application.22"), True), AcadApplication)
     End Try
     If acAppComObj IsNot Nothing Then
       Try

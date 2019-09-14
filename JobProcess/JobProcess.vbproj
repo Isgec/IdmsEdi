@@ -10,7 +10,8 @@
     <AssemblyName>JobProcess</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,11 +45,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autodesk.AutoCAD.Interop">
-      <HintPath>..\..\..\..\Program Files\Autodesk\AutoCAD 2016\Autodesk.AutoCAD.Interop.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files\Autodesk\AutoCAD 2018\Autodesk.AutoCAD.Interop.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Autodesk.AutoCAD.Interop.Common">
-      <HintPath>..\..\..\..\Program Files\Autodesk\AutoCAD 2016\Autodesk.AutoCAD.Interop.Common.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files\Autodesk\AutoCAD 2018\Autodesk.AutoCAD.Interop.Common.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Autodesk.Connectivity.Extensibility.Framework">
@@ -65,6 +66,9 @@
     </Reference>
     <Reference Include="EDICommon">
       <HintPath>..\EDICommon\bin\Debug\EDICommon.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp">
+      <HintPath>..\IdmsEDI\bin\Debug\itextsharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -123,6 +127,7 @@
     <Compile Include="TimerSupport.vb" />
     <Compile Include="vltUtility.vb" />
     <Compile Include="xlConverter.vb" />
+    <Compile Include="_dmsApi.vb" />
     <Compile Include="_ediAFile.vb" />
     <Compile Include="_ediALib.vb" />
     <Compile Include="_ediASeries.vb" />

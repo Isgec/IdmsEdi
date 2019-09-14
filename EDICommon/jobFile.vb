@@ -72,7 +72,8 @@ Public Class jobFile
   Public Function Clone() As Object Implements ICloneable.Clone
     Return MyBase.MemberwiseClone()
   End Function
-
+  Public Property t_dcid As String = ""
+  Public Property t_drid As String = ""
   'Derived Properties
   Public Property ProjectID As String = ""
   Public Property CardNo As String = ""

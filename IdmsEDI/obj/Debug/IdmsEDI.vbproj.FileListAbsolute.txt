@@ -40,3 +40,7 @@ C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\obj\Debug\IdmsEDI.vbproj.GenerateResource
 C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\obj\Debug\IdmsEDI.exe
 C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\obj\Debug\IdmsEDI.xml
 C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\obj\Debug\IdmsEDI.pdb
+C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\accoremgd.dll
+C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\Acdbmgd.dll
+C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\en-US\Acdbmgd.resources.dll
+C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\itextsharp.dll
