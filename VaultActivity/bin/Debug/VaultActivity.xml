@@ -22,5 +22,42 @@ VaultActivity
   resource lookups using this strongly typed resource class.
 </summary>
 </member>
+<member name="T:VaultActivity.LegacyFileTransfer">
+ <summary>
+ A set of functions to add, check-in, check-out and download files using only web service calls.
+ I attempted to keep the function calls similar to the Vault 2013 versions.  For example, byte[] 
+ parameters are used, even though a Stream is more optimal.
+ </summary>
+</member>
+<member name="M:VaultActivity.LegacyFileTransfer.AddFile(Autodesk.Connectivity.WebServicesTools.WebServiceManager,System.String,System.Int64,System.String,System.String,System.DateTime,Autodesk.Connectivity.WebServices.FileAssocParam[],Autodesk.Connectivity.WebServices.BOM,Autodesk.Connectivity.WebServices.FileClassification,System.Boolean,System.Byte[])">
+ <summary>
+ Adds a file using only web service API calls.
+ </summary>
+ <param name="fileContents">The entire contents of the file.
+ If you work with large files, you may want to modify this to use a Stream instead.</param>
+</member>
+<member name="M:VaultActivity.LegacyFileTransfer.CheckinFile(Autodesk.Connectivity.WebServicesTools.WebServiceManager,System.String,System.Int64,System.String,System.Boolean,System.DateTime,Autodesk.Connectivity.WebServices.FileAssocParam[],Autodesk.Connectivity.WebServices.BOM,System.Boolean,System.String,Autodesk.Connectivity.WebServices.FileClassification,System.Boolean,System.Byte[])">
+ <summary>
+ Checks-in a file using only web service API calls.
+ </summary>
+ <param name="fileContents">The entire contents of the file.
+ If you work with large files, you may want to modify this to use a Stream instead.</param>
+</member>
+<member name="M:VaultActivity.LegacyFileTransfer.CheckoutFile(Autodesk.Connectivity.WebServicesTools.WebServiceManager,System.Int64,System.Int64,Autodesk.Connectivity.WebServices.CheckoutFileOptions,System.String,System.String,System.String,System.Boolean,System.Boolean,System.Byte[]@)">
+ <summary>
+ Checks out and optionally downloads a file using only web service API calls.
+ </summary>
+ <param name="fileContents">If downloadFile is true, this parameter will return 
+ the entire contents of the file.
+ If you work with large files, you may want to modify this to use a Stream instead.</param>
+ <returns></returns>
+</member>
+<member name="M:VaultActivity.LegacyFileTransfer.DownloadFile(Autodesk.Connectivity.WebServicesTools.WebServiceManager,System.Int64,System.Boolean,System.Byte[]@)">
+ <summary>
+ Downloads a file using only web service API calls.
+ </summary>
+ <param name="fileContents">The entire contents of the file.
+ If you work with large files, you may want to modify this to use a Stream instead.</param>
+</member>
 </members>
 </doc>

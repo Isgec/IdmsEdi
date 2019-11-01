@@ -103,6 +103,25 @@ Namespace SIS.EDI
         End Using
         Return tmp
       End Function
+      Public Shared Function GetVendorEmailIDs(ByVal VendorID As String, ByVal AddressID As String) As String
+        Dim mSql As String = ""
+        mSql = mSql & " select top 1 "
+        mSql = mSql & " t_mail  "
+        mSql = mSql & " from tdmisg128200 "
+        mSql = mSql & " where t_ofbp = '" & VendorID & "'"
+        mSql = mSql & " and   t_cadr = '" & AddressID & "'"
+        Dim tmp As String = ""
+        Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
+          Using Cmd As SqlCommand = Con.CreateCommand()
+            Cmd.CommandType = CommandType.Text
+            Cmd.CommandText = mSql
+            Con.Open()
+            tmp = Cmd.ExecuteScalar()
+            If tmp Is Nothing Then tmp = ""
+          End Using
+        End Using
+        Return tmp
+      End Function
 
       Public Shared Function GetTCPOIssuer(ByVal PONo As String) As String
         Dim mSql As String = ""
@@ -289,6 +308,20 @@ Namespace SIS.EDI
                 If x IsNot Nothing Then .CC.Add(x)
                 x = gma(emp.GetWebUser(POBuyer), aErr, "PO-Buyer")
                 If x IsNot Nothing Then .CC.Add(x)
+              End If
+              If oTmtl.t_ofbp = "SUPI00002" And oTmtl.t_issu = "007" Then
+                'Transmittal Supplier Address
+                Dim SiteIDs As String = emp.GetVendorEmailIDs(oTmtl.t_ofbp, oTmtl.t_vadr)
+                If SiteIDs <> "" Then
+                  Dim aIDs() As String = SiteIDs.Split(",;".ToCharArray)
+                  For Each id As String In aIDs
+                    Try
+                      x = New MailAddress(id.Trim, id.Trim)
+                      .To.Add(x)
+                    Catch ex As Exception
+                    End Try
+                  Next
+                End If
               End If
           End Select
         Catch ex As Exception

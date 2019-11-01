@@ -405,7 +405,6 @@ Namespace SIS.DMS
       Return mRet
     End Function
 
-
     Public Shared Function GetTopOneChild(itm As SIS.DMS.UI.apiItem) As SIS.DMS.UI.apiItem
       Dim mRet As SIS.DMS.UI.apiItem = Nothing
       Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetConnectionString())
@@ -427,6 +426,55 @@ Namespace SIS.DMS
 
     End Function
 
+    Public Class ItemProperty
+      Public Property ItemID As String = ""
+      Public Property TransmittalID As String = ""
+      Public Property ProjectID As String = ""
+      Public Property ProjectName As String = ""
+      Public Property TransmittalType As String = ""
+      Public Property TransmittalSubject As String = ""
+      Public Property Remarks As String = ""
+      Public Property CreatedBy As String = ""
+      Public Property CreatedName As String = ""
+      Public Property CreatedOn As String = ""
+      Public Property ApprovedBy As String = ""
+      Public Property ApproverName As String = ""
+      Public Property ApprovedOn As String = ""
+      Public Property IssuedBy As String = ""
+      Public Property IssuerName As String = ""
+      Public Property IssuedOn As String = ""
+      Public Shared Function InsertData(Record As SIS.DMS.UI.ItemProperty) As SIS.DMS.UI.ItemProperty
+        Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetConnectionString())
+          Using Cmd As SqlCommand = Con.CreateCommand()
+            Cmd.CommandType = CommandType.StoredProcedure
+            Cmd.CommandText = "spDMS_ItemPropertyInsert"
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@ItemID", SqlDbType.Int, 11, Record.ItemID)
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@TransmittalID", SqlDbType.NVarChar, 51, IIf(Record.TransmittalID = "", Convert.DBNull, Record.TransmittalID))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@ProjectID", SqlDbType.NVarChar, 51, IIf(Record.ProjectID = "", Convert.DBNull, Record.ProjectID))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@ProjectName", SqlDbType.NVarChar, 251, IIf(Record.ProjectName = "", Convert.DBNull, Record.ProjectName))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@TransmittalType", SqlDbType.NVarChar, 51, IIf(Record.TransmittalType = "", Convert.DBNull, Record.TransmittalType))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@TransmittalSubject", SqlDbType.NVarChar, 251, IIf(Record.TransmittalSubject = "", Convert.DBNull, Record.TransmittalSubject))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@Remarks", SqlDbType.NVarChar, 501, IIf(Record.Remarks = "", Convert.DBNull, Record.Remarks))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@CreatedBy", SqlDbType.NVarChar, 51, IIf(Record.CreatedBy = "", Convert.DBNull, Record.CreatedBy))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@CreatedName", SqlDbType.NVarChar, 51, IIf(Record.CreatedName = "", Convert.DBNull, Record.CreatedName))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@CreatedOn", SqlDbType.DateTime, 21, IIf(Record.CreatedOn = "", Convert.DBNull, Record.CreatedOn))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@ApprovedBy", SqlDbType.NVarChar, 51, IIf(Record.ApprovedBy = "", Convert.DBNull, Record.ApprovedBy))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@ApproverName", SqlDbType.NVarChar, 51, IIf(Record.ApproverName = "", Convert.DBNull, Record.ApproverName))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@ApprovedOn", SqlDbType.DateTime, 21, IIf(Record.ApprovedOn = "", Convert.DBNull, Record.ApprovedOn))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@IssuedBy", SqlDbType.NVarChar, 51, IIf(Record.IssuedBy = "", Convert.DBNull, Record.IssuedBy))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@IssuerName", SqlDbType.NVarChar, 51, IIf(Record.IssuerName = "", Convert.DBNull, Record.IssuerName))
+            EDICommon.DBCommon.AddDBParameter(Cmd, "@IssuedOn", SqlDbType.DateTime, 21, IIf(Record.IssuedOn = "", Convert.DBNull, Record.IssuedOn))
+            Cmd.Parameters.Add("@Return_ItemID", SqlDbType.Int, 11)
+            Cmd.Parameters("@Return_ItemID").Direction = ParameterDirection.Output
+            Con.Open()
+            Cmd.ExecuteNonQuery()
+            Record.ItemID = Cmd.Parameters("@Return_ItemID").Value
+          End Using
+        End Using
+        Return Record
+      End Function
+
+    End Class
   End Class
 
 End Namespace

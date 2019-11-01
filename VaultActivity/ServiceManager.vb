@@ -135,5 +135,14 @@ Public Class ServiceManager
     service.Url = builder.Uri.ToString()
     Return service.Url
   End Function
+  'Public Shared Function UploadFile(abc As String) As Boolean
+  '  GetServiceManager()
+  '  Dim ParentFolder As New Currency.Entities.Folder
+  '  Dim FileName As New Autodesk.DataManagement.Client.Framework.Currency.FilePathAbsolute("c:\temp\abc.txt")
+
+  '  Dim x As Connection = oServiceManager.mConnection
+  '  x.FileManager.AddFile(ParentFolder, "added by edi", {}, Nothing, Nothing, False, FileName)
+  '  Return False
+  'End Function
 End Class
 

@@ -76,7 +76,11 @@ Public Class JobProcessor
             msg("E-Mail sent")
             EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
             '=============================
-            PublishInDMS(tmtlH, mailBody, Jobs)
+            Try
+              PublishInDMS(tmtlH, mailBody, Jobs)
+            Catch ex As Exception
+              msg("Error Publishing File in DMS : " & ex.Message)
+            End Try
             '=============================
           Catch ex As Exception
             msg("Error Sending E-Mail." & ex.Message)
@@ -97,7 +101,7 @@ Public Class JobProcessor
     If tmtlH.t_ofbp <> "SUPI00002" Then Return 'Only YNR
     Dim dmsFolderID As Integer = tmtlH.getDMSFolderID()
     If dmsFolderID <= 0 Then Return
-    Dim mainFile As String = "Transmittal_" & tmtlH.t_tran & ".PDF"
+    Dim mainFile As String = tmtlH.t_dprj & "_Transmittal_" & tmtlH.t_tran & ".PDF"
     Dim mainPath As String = jpConfig.TempFolderPath & "\" & mainFile
 
     Dim output = New FileStream(mainPath, FileMode.Create)
@@ -109,9 +113,6 @@ Public Class JobProcessor
     htmlparser.Parse(sr)
     pdfDoc.Close()
 
-    'Dim tw As System.IO.StreamWriter = New System.IO.StreamWriter(mainPath)
-    'tw.Write(mailBody)
-    'tw.Close()
     Dim tmpVault As SIS.EDI.ediAFile
     Dim LibORGFile As String = ""
     tmpVault = New SIS.EDI.ediAFile
@@ -145,16 +146,9 @@ Public Class JobProcessor
         Exit For
       End If
     Next
-    If wf Is Nothing Then
-      wf = New SIS.DMS.UI.apiItem
-      wf.ConvertedStatusID = 1
-    Else
+    If wf IsNot Nothing Then
       'Get NextWF
       wf = SIS.DMS.UI.GetTopOneChild(wf)
-      If wf Is Nothing Then
-        wf = New SIS.DMS.UI.apiItem
-        wf.ConvertedStatusID = 1
-      End If
     End If
     Dim dmsItm As New SIS.DMS.UI.apiItem
     With dmsItm
@@ -162,32 +156,40 @@ Public Class JobProcessor
       .Description = mainFile
       .FullDescription = mainFile
       .RevisionNo = "00"
-      .StatusID = wf.ConvertedStatusID
+      If wf Is Nothing Then
+        .StatusID = 1
+      Else
+        .StatusID = wf.ConvertedStatusID
+      End If
       .CreatedBy = tmtlH.t_user
       .CreatedOn = Now
       .ParentItemID = pItm.ItemID
-      .ForwardLinkedItemID = IIf(wf.ItemID = 0, "", wf.ItemID)
-      .ForwardLinkedItemTypeID = IIf(wf.ItemTypeID = 0, "", wf.ItemTypeID)
+      If wf IsNot Nothing Then
+        .ForwardLinkedItemID = IIf(wf.ItemID = 0, "", wf.ItemID)
+        .ForwardLinkedItemTypeID = IIf(wf.ItemTypeID = 0, "", wf.ItemTypeID)
+      End If
       .IsgecVaultID = LibORGFile
     End With
     dmsItm = SIS.DMS.UI.apiItem.InsertData(dmsItm)
     SIS.DMS.UI.apiItem.InsertHistory(dmsItm)
-    If wf.ConvertedStatusID <> 1 Then
-      Dim ackItm As New SIS.DMS.UI.apiItem
-      With ackItm
-        .ItemTypeID = 13 'Under Approval
-        .Description = dmsItm.Description
-        .FullDescription = dmsItm.FullDescription
-        .RevisionNo = "00"
-        .StatusID = dmsItm.StatusID
-        .CreatedBy = tmtlH.t_user
-        .CreatedOn = Now
-        .ForwardLinkedItemID = wf.ItemID
-        .ForwardLinkedItemTypeID = wf.ItemTypeID
-        .LinkedItemID = dmsItm.ItemID
-        .LinkedItemTypeID = 3
-      End With
-      ackItm = SIS.DMS.UI.apiItem.InsertData(ackItm)
+    If wf IsNot Nothing Then
+      If wf.ConvertedStatusID <> 1 Then
+        Dim ackItm As New SIS.DMS.UI.apiItem
+        With ackItm
+          .ItemTypeID = 13 'Under Approval
+          .Description = dmsItm.Description
+          .FullDescription = dmsItm.FullDescription
+          .RevisionNo = "00"
+          .StatusID = dmsItm.StatusID
+          .CreatedBy = dmsItm.CreatedBy
+          .CreatedOn = dmsItm.CreatedOn
+          .ForwardLinkedItemID = dmsItm.ForwardLinkedItemID
+          .ForwardLinkedItemTypeID = dmsItm.ForwardLinkedItemTypeID
+          .LinkedItemID = dmsItm.ItemID
+          .LinkedItemTypeID = 3
+        End With
+        ackItm = SIS.DMS.UI.apiItem.InsertData(ackItm)
+      End If
     End If
     For Each jFile As jobFile In jobs
       Dim jItm As New SIS.DMS.UI.apiItem
@@ -200,16 +202,37 @@ Public Class JobProcessor
         '.KeyWords = jFile.MCDxData.Title
         '.WBSID = jFile.MCDxData.ElementID
         .StatusID = dmsItm.StatusID
-        .CreatedBy = tmtlH.t_user
-        .CreatedOn = Now
+        .CreatedBy = dmsItm.CreatedBy
+        .CreatedOn = dmsItm.CreatedOn
         .ParentItemID = dmsItm.ItemID
-        .ForwardLinkedItemID = wf.ItemID
-        .LinkedItemTypeID = wf.ItemTypeID
+        .ForwardLinkedItemID = dmsItm.ForwardLinkedItemID
+        .ForwardLinkedItemTypeID = dmsItm.ForwardLinkedItemTypeID
         .IsgecVaultID = jFile.t_dcid
       End With
       jItm = SIS.DMS.UI.apiItem.InsertData(jItm)
       SIS.DMS.UI.apiItem.InsertHistory(jItm)
     Next
+    'Update Item Property
+    Dim itmProp As New SIS.DMS.UI.ItemProperty
+    With itmProp
+      .ItemID = dmsItm.ItemID
+      .IssuedBy = tmtlH.t_isby
+      .IssuedOn = tmtlH.t_isdt
+      .IssuerName = ""
+      .ProjectID = tmtlH.t_dprj
+      .ProjectName = ""
+      .Remarks = tmtlH.t_remk
+      .TransmittalID = tmtlH.t_tran
+      .TransmittalSubject = tmtlH.t_subj
+      .TransmittalType = tmtlH.t_type
+      .ApprovedBy = tmtlH.t_apsu
+      .ApprovedOn = tmtlH.t_apdt
+      .ApproverName = ""
+      .CreatedBy = tmtlH.t_user
+      .CreatedName = ""
+      .CreatedOn = tmtlH.t_date
+    End With
+    SIS.DMS.UI.ItemProperty.InsertData(itmProp)
   End Sub
   Private Function ProcessJobFile(ByVal tmpJob As jobFile) As jobFile
     'Check in IsgecVault

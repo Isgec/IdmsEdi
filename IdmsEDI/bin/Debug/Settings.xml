@@ -14,7 +14,7 @@
   <JobFilePath>D:\Temp\JOB</JobFilePath>
   <CreatePDFFiles>true</CreatePDFFiles>
   <AutoCADVisible>false</AutoCADVisible>
-  <BaaNLive>True</BaaNLive>
-  <JoomlaLive>True</JoomlaLive>
-  <Testing>False</Testing>
+  <BaaNLive>true</BaaNLive>
+  <JoomlaLive>true</JoomlaLive>
+  <Testing>false</Testing>
 </Settings>
