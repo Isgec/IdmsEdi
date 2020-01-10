@@ -125,7 +125,7 @@ Public Class jobFile
   Public Property JobCreationTime As String = ""
   Public Delegate Sub showMsg(ByVal str As String)
 
-  Public Shared Function SelectList(ByRef TransmittalID As String, Optional ByVal msg As showMsg = Nothing) As List(Of jobFile)
+  Public Shared Function SelectList(ByRef TransmittalID As String, ByRef DocCount As Integer, Optional ByVal msg As showMsg = Nothing) As List(Of jobFile)
     Dim tmp As New List(Of jobFile)
     Dim Page As Integer = 0
     Dim Size As Integer = 1
@@ -159,8 +159,9 @@ Public Class jobFile
         RevID = GetRevID(VaultDB)
         'Get All Documents In Transmittal
         Dim tmtlDs As List(Of SIS.EDI.ediTmtlD) = SIS.EDI.ediTmtlD.ediTmtlDSelectList(xPage, xSize, "", False, "", tmtlH.t_tran, "", "")
+        DocCount = SIS.EDI.ediTmtlD.RecordCount
         If msg IsNot Nothing Then
-          msg.Invoke("Documents in transmittal: " & SIS.EDI.ediTmtlD.RecordCount)
+          msg.Invoke("Documents in transmittal: " & DocCount)
         End If
         Dim dCnt As Integer = 0
         Do While tmtlDs.Count > 0

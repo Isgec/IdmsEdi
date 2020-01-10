@@ -287,7 +287,7 @@ Namespace SIS.EDI
                 .CC.Add(x)
               End If
               Dim tmp As String = emp.GetReceiptCreator(TransmittalID)
-              If tmp = "SUPPLIER" Or tmp = "" Then
+              If tmp.ToLower = "supplier" Or tmp = "" Then
                 x = gma(Approver, aErr, "VT-Approver-To")
                 If x IsNot Nothing Then .To.Add(x)
               Else

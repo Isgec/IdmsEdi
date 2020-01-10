@@ -48,7 +48,8 @@ Public Class JobProcessor
       Dim I As Integer = 0
       'Get 1 Transmittal at a time from BaaN as Job
       Dim TransmittalID As String = ""
-      Dim Jobs As List(Of jobFile) = jobFile.SelectList(TransmittalID, AddressOf msg)
+      Dim DocCount As Integer = 0
+      Dim Jobs As List(Of jobFile) = jobFile.SelectList(TransmittalID, DocCount, AddressOf msg)
       Dim AllDocumentProcessed As Boolean = True
       For Each tmpJob As jobFile In Jobs
         TransmittalID = tmpJob.TransmittalID
@@ -65,8 +66,13 @@ Public Class JobProcessor
       If TransmittalID <> "" Then
         Dim tmtlH As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.ediTmtlHGetByID(TransmittalID)
         If Jobs.Count <= 0 Then
-          tmtlH.t_edif = 3 'Error
-          EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
+          If DocCount > 0 Then
+            tmtlH.t_edif = 4 'Document NOT in Document Master
+            EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
+          Else
+            tmtlH.t_edif = 3 'Error
+            EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
+          End If
         ElseIf AllDocumentProcessed Then
           tmtlH.t_edif = 1 'YES
           msg("Sending E-Mail.")
