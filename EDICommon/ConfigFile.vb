@@ -24,6 +24,8 @@ Public Class ConfigFile
   Public Property BaaNLive As Boolean = False
   Public Property JoomlaLive As Boolean = False
   Public Property Testing As Boolean = False
+  Public Property IsLocalISGECVault As Boolean = False
+  Public Property ISGECVaultIP As String = ""
   'Derived Property
   Public Property StartupPath As String = ""
   Public Property JobPathWorking As String = ""
@@ -106,6 +108,15 @@ Public Class ConfigFile
                   tmp.Testing = Convert.ToBoolean(rd.Value.Trim)
                 Catch ex As Exception
                 End Try
+              Case "IsLocalISGECVault"
+                Try
+                  rd.Read()
+                  tmp.IsLocalISGECVault = Convert.ToBoolean(rd.Value.Trim)
+                Catch ex As Exception
+                End Try
+              Case "ISGECVaultIP"
+                rd.Read()
+                tmp.ISGECVaultIP = rd.Value.Trim
             End Select
           End If
         End While

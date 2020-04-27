@@ -4,6 +4,7 @@ Imports iTextSharp.text
 Imports iTextSharp.text.html.simpleparser
 Imports iTextSharp.text.pdf
 Imports System.IO
+Imports ejiVault
 Public Class JobProcessor
   Inherits TimerSupport
   Implements IDisposable
@@ -119,15 +120,16 @@ Public Class JobProcessor
     htmlparser.Parse(sr)
     pdfDoc.Close()
 
-    Dim tmpVault As SIS.EDI.ediAFile
+    Dim tmpVault As EJI.ediAFile
     Dim LibORGFile As String = ""
-    tmpVault = New SIS.EDI.ediAFile
+    tmpVault = New EJI.ediAFile
     With tmpVault
-      LibORGFile = SIS.EDI.ediASeries.GetNextFileName
+      .t_drid = EJI.ediASeries.GetNextRecordID
+      LibORGFile = EJI.ediASeries.GetNextFileID
       .t_dcid = LibORGFile
       .t_hndl = "TRANSMITTALLINES_" & ERPCompany
       .t_indx = tmtlH.t_tran
-      .t_prcd = "By EDI"
+      .t_prcd = "EJIMAIN"
       .t_fnam = mainFile
       .t_lbcd = LibraryID
       .t_atby = tmtlH.t_user
@@ -135,7 +137,7 @@ Public Class JobProcessor
       .t_Refcntd = 0
       .t_Refcntu = 0
     End With
-    tmpVault = SIS.EDI.ediAFile.InsertData(tmpVault)
+    tmpVault = EJI.ediAFile.InsertData(tmpVault)
     If System.IO.File.Exists(LibraryPath & "\" & LibORGFile) Then
       System.IO.File.Delete(LibraryPath & "\" & LibORGFile)
     End If
@@ -213,7 +215,9 @@ Public Class JobProcessor
         .ParentItemID = dmsItm.ItemID
         .ForwardLinkedItemID = dmsItm.ForwardLinkedItemID
         .ForwardLinkedItemTypeID = dmsItm.ForwardLinkedItemTypeID
+        '======Important: ISGEC Vault ID is DCID: File ID not Record ID:DRID
         .IsgecVaultID = jFile.t_dcid
+        '===================================================================
       End With
       jItm = SIS.DMS.UI.apiItem.InsertData(jItm)
       SIS.DMS.UI.apiItem.InsertHistory(jItm)
@@ -243,7 +247,7 @@ Public Class JobProcessor
   Private Function ProcessJobFile(ByVal tmpJob As jobFile) As jobFile
     'Check in IsgecVault
     Dim VaultIndex As String = tmpJob.DocumentID & "_" & tmpJob.RevisionNo
-    Dim tmpVault As SIS.EDI.ediAFile = SIS.EDI.ediAFile.ediAFileGetByHandleIndex("DOCUMENTMASTERPDF_" & ERPCompany, VaultIndex)
+    Dim tmpVault As EJI.ediAFile = EJI.ediAFile.GetFileByHandleIndex("DOCUMENTMASTERPDF_" & ERPCompany, VaultIndex)
     If tmpVault Is Nothing Then
       msg("Not Found In isgec Vault.")
       msg("Downloading from Autodesk Vault.")
@@ -262,13 +266,14 @@ Public Class JobProcessor
         Dim LibPDFFile As String = ""
         Dim LibORGFile As String = ""
         msg("Attaching in Isgec Vault.")
-        tmpVault = New SIS.EDI.ediAFile
+        tmpVault = New EJI.ediAFile
         With tmpVault
-          LibORGFile = SIS.EDI.ediASeries.GetNextFileName
+          .t_drid = EJI.ediASeries.GetNextRecordID
+          LibORGFile = EJI.ediASeries.GetNextFileID
           .t_dcid = LibORGFile
           .t_hndl = "DOCUMENTMASTERORG_" & ERPCompany
           .t_indx = VaultIndex
-          .t_prcd = "By EDI"
+          .t_prcd = "EJIMAIN"
           .t_fnam = tmpJob.FileName
           .t_lbcd = LibraryID
           .t_atby = tmpJob.CreatedBy
@@ -276,15 +281,16 @@ Public Class JobProcessor
           .t_Refcntd = 0
           .t_Refcntu = 0
         End With
-        tmpVault = SIS.EDI.ediAFile.InsertData(tmpVault)
+        tmpVault = EJI.ediAFile.InsertData(tmpVault)
         'tmpvault for PDF file
-        tmpVault = New SIS.EDI.ediAFile
+        tmpVault = New EJI.ediAFile
         With tmpVault
-          LibPDFFile = SIS.EDI.ediASeries.GetNextFileName
+          .t_drid = EJI.ediASeries.GetNextRecordID
+          LibPDFFile = EJI.ediASeries.GetNextFileID
           .t_dcid = LibPDFFile
           .t_hndl = "DOCUMENTMASTERPDF_" & ERPCompany
           .t_indx = VaultIndex
-          .t_prcd = "By EDI"
+          .t_prcd = "EJIMAIN"
           .t_fnam = tmpJob.PDFFileName
           .t_lbcd = LibraryID
           .t_atby = tmpJob.CreatedBy
@@ -292,7 +298,7 @@ Public Class JobProcessor
           .t_Refcntd = 0
           .t_Refcntu = 0
         End With
-        tmpVault = SIS.EDI.ediAFile.InsertData(tmpVault)
+        tmpVault = EJI.ediAFile.InsertData(tmpVault)
         tmpJob.t_dcid = LibPDFFile
         tmpJob.t_drid = tmpVault.t_drid
         msg("Copying ORG File to Library.")
@@ -320,7 +326,7 @@ Public Class JobProcessor
     If tmpVault IsNot Nothing Then
       'tmpVault will be PDF file
       'Copy Vault Handle to Transmittal Handle
-      Dim tmpTr As SIS.EDI.ediAFile = SIS.EDI.ediAFile.ediAFileGetByHandleIndex("TRANSMITTALLINES_" & ERPCompany, tmpJob.AttachmentIndex)
+      Dim tmpTr As EJI.ediAFile = EJI.ediAFile.GetFileByHandleIndex("TRANSMITTALLINES_" & ERPCompany, tmpJob.AttachmentIndex)
       If tmpTr IsNot Nothing Then
         'Do Nothing
       Else
@@ -331,12 +337,14 @@ Public Class JobProcessor
           .t_indx = tmpJob.AttachmentIndex
           .t_atby = tmpJob.CreatedBy
           .t_aton = tmpJob.CreatedOn
+          .t_prcd = .t_drid
+          .t_drid = EJI.ediASeries.GetNextRecordID
         End With
-        tmpTr = SIS.EDI.ediAFile.InsertData(tmpTr)
+        tmpTr = EJI.ediAFile.InsertData(tmpTr)
         msg("Copied from Vault Handle")
       End If
       tmpJob.t_dcid = tmpTr.t_dcid
-      tmpJob.t_dcid = tmpTr.t_dcid
+      tmpJob.t_drid = tmpTr.t_drid
     End If
     Return tmpJob
   End Function
@@ -356,17 +364,24 @@ Public Class JobProcessor
     EDICommon.DBCommon.BaaNLive = jpConfig.BaaNLive
     EDICommon.DBCommon.JoomlaLive = jpConfig.JoomlaLive
     SIS.EDI.ediAlerts.Testing = jpConfig.Testing
+    EJI.DBCommon.BaaNLive = jpConfig.BaaNLive
+    EJI.DBCommon.JoomlaLive = jpConfig.JoomlaLive
+    EJI.DBCommon.ERPCompany = "200"
+    EJI.DBCommon.IsLocalISGECVault = jpConfig.IsLocalISGECVault
+    EJI.DBCommon.ISGECVaultIP = jpConfig.ISGECVaultIP
 
-    Dim tmp As SIS.EDI.ediALib = SIS.EDI.ediALib.GetActiveLibrary
-    LibraryPath = "\\192.9.200.146\" & tmp.t_path
+    Dim tmp As EJI.ediALib = EJI.ediALib.GetActiveLibrary
+    LibraryPath = tmp.LibraryPath
     LibraryID = tmp.t_lbcd
-    msg("Connecting to remote attachment library.")
 
-    If ConnectToNetworkFunctions.connectToNetwork(LibraryPath, "X:", "administrator", "Indian@12345") Then
-      msg("Remote connected.")
-      RemoteLibraryConnected = True
-    Else
-      msg("Failed to connect Remote Library.")
+    If Not jpConfig.IsLocalISGECVault Then
+      msg("Connecting to remote attachment library.")
+      If EJI.ediALib.ConnectISGECVault(tmp) Then
+        msg("Remote connected.")
+        RemoteLibraryConnected = True
+      Else
+        msg("Failed to connect Remote Library.")
+      End If
     End If
 
     cad = New cadUtility

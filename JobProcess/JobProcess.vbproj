@@ -67,6 +67,9 @@
     <Reference Include="EDICommon">
       <HintPath>..\EDICommon\bin\Debug\EDICommon.dll</HintPath>
     </Reference>
+    <Reference Include="ejiVault">
+      <HintPath>..\..\ejiVault\ejiVault\bin\Debug\ejiVault.dll</HintPath>
+    </Reference>
     <Reference Include="itextsharp">
       <HintPath>..\IdmsEDI\bin\Debug\itextsharp.dll</HintPath>
     </Reference>
@@ -128,9 +131,6 @@
     <Compile Include="vltUtility.vb" />
     <Compile Include="xlConverter.vb" />
     <Compile Include="_dmsApi.vb" />
-    <Compile Include="_ediAFile.vb" />
-    <Compile Include="_ediALib.vb" />
-    <Compile Include="_ediASeries.vb" />
     <Compile Include="_ediAlerts.vb" />
   </ItemGroup>
   <ItemGroup>

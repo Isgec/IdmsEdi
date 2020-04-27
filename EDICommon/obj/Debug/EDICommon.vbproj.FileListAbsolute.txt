@@ -32,4 +32,3 @@ C:\Data\Projects15.NET\IdmsEDI\EDICommon\obj\Debug\EDICommon.vbproj.GenerateReso
 C:\Data\Projects15.NET\IdmsEDI\EDICommon\obj\Debug\EDICommon.dll
 C:\Data\Projects15.NET\IdmsEDI\EDICommon\obj\Debug\EDICommon.xml
 C:\Data\Projects15.NET\IdmsEDI\EDICommon\obj\Debug\EDICommon.pdb
-C:\Data\Projects15.NET\IdmsEDI\EDICommon\obj\Debug\EDICommon.vbprojResolveAssemblyReference.cache

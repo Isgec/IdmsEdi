@@ -44,3 +44,6 @@ C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\accoremgd.dll
 C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\Acdbmgd.dll
 C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\en-US\Acdbmgd.resources.dll
 C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\itextsharp.dll
+C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\ejiVault.dll
+C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\ejiVault.pdb
+C:\Data\Projects15.NET\IdmsEDI\IdmsEDI\bin\Debug\ejiVault.xml

@@ -17,4 +17,6 @@
   <BaaNLive>true</BaaNLive>
   <JoomlaLive>true</JoomlaLive>
   <Testing>false</Testing>
+  <IsLocalISGECVault>false</IsLocalISGECVault>
+  <ISGECVaultIP>192.9.200.146</ISGECVaultIP>
 </Settings>
