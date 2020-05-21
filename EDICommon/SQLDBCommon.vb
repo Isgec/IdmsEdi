@@ -35,6 +35,43 @@ Public Class DBCommon
     Parm.Value = value
     Cmd.Parameters.Add(Parm)
   End Sub
+  Public Shared Function NewObj(this As Object, Reader As SqlDataReader) As Object
+    Try
+      For Each pi As System.Reflection.PropertyInfo In this.GetType.GetProperties
+        If pi.MemberType = Reflection.MemberTypes.Property Then
+          Try
+            Dim Found As Boolean = False
+            For I As Integer = 0 To Reader.FieldCount - 1
+              If Reader.GetName(I).ToLower = pi.Name.ToLower Then
+                Found = True
+                Exit For
+              End If
+            Next
+            If Found Then
+              If Convert.IsDBNull(Reader(pi.Name)) Then
+                Select Case Reader.GetDataTypeName(Reader.GetOrdinal(pi.Name))
+                  Case "decimal"
+                    CallByName(this, pi.Name, CallType.Let, "0.00")
+                  Case "bit"
+                    CallByName(this, pi.Name, CallType.Let, Boolean.FalseString)
+                  Case Else
+                    CallByName(this, pi.Name, CallType.Let, String.Empty)
+                End Select
+              Else
+                CallByName(this, pi.Name, CallType.Let, Reader(pi.Name))
+              End If
+            End If
+          Catch ex As Exception
+          End Try
+        End If
+      Next
+    Catch ex As Exception
+      Return Nothing
+    End Try
+    Return this
+  End Function
+
+
 #Region " IDisposable Support "
   Private disposedValue As Boolean = False    ' To detect redundant calls
   ' IDisposable

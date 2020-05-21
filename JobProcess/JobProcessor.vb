@@ -84,6 +84,14 @@ Public Class JobProcessor
             EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
             '=============================
             Try
+              msg("Sending Alert to vendor(comment submitted)")
+              SIS.EDI.ediAlerts.CommentSubmittedAlertToVendor(TransmittalID)
+              msg("Sent comment submitted")
+            Catch ex As Exception
+              msg("Error: Alert to Vendor")
+            End Try
+            '=============================
+            Try
               PublishInDMS(tmtlH, mailBody, Jobs)
             Catch ex As Exception
               msg("Error Publishing File in DMS : " & ex.Message)

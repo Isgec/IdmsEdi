@@ -1,6 +1,7 @@
 ﻿Imports System.Data.SqlClient
 Imports System.Net.Mail
 Imports System.Text
+Imports EDICommon
 Namespace SIS.EDI
   Public Class ediAlerts
     Public Shared Property Testing As Boolean = False
@@ -186,6 +187,51 @@ Namespace SIS.EDI
         End Using
         Return tmp
       End Function
+      Public Shared Function GetPOSupplierEmailByReceiptNo(ReceiptNo As String, RevisionNo As String) As String
+        Dim mSql As String = ""
+        mSql = mSql & " select "
+        mSql = mSql & " isnull(aa.emailid,'') as emailid "
+        mSql = mSql & " from vr_businessPartner as aa "
+        mSql = mSql & " inner join pak_po as bb on aa.bpid=bb.supplierid "
+        mSql = mSql & " inner join pak_polinerec as cc on bb.serialno=cc.serialno "
+        mSql = mSql & " where cc.receiptno='" & ReceiptNo & " and cc.revisionno='" & RevisionNo & "'"
+        Dim tmp As String = ""
+        Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetConnectionString())
+          Using Cmd As SqlCommand = Con.CreateCommand()
+            Cmd.CommandType = CommandType.Text
+            Cmd.CommandText = mSql
+            Con.Open()
+            Dim Reader As SqlDataReader = Cmd.ExecuteReader()
+            If (Reader.Read()) Then
+              If Not Convert.IsDBNull(Reader("emailid")) Then tmp = Reader("emailid")
+            End If
+            Reader.Close()
+          End Using
+        End Using
+        Return tmp
+      End Function
+      Public Shared Function GetTransmittalCCUsers(ByVal tmtlID As String) As List(Of String)
+        Dim mSql As String = ""
+        mSql = mSql & " select "
+        mSql = mSql & " isnull(t_emno,'') as [user] "
+        mSql = mSql & " from tdmisg031200 "
+        mSql = mSql & " where t_tran = '" & tmtlID & "'"
+        Dim tmp As New List(Of String)
+        Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
+          Using Cmd As SqlCommand = Con.CreateCommand()
+            Cmd.CommandType = CommandType.Text
+            Cmd.CommandText = mSql
+            Con.Open()
+            Dim Reader As SqlDataReader = Cmd.ExecuteReader()
+            While (Reader.Read())
+              If Not Reader("user") = "" Then tmp.Add(Reader("user"))
+            End While
+            Reader.Close()
+          End Using
+        End Using
+        Return tmp
+      End Function
+
     End Class
     Private Shared Function gma(ByVal tmp As emp, ByRef aErr As ArrayList, Optional ByVal State As String = "") As MailAddress
       Dim x As MailAddress = Nothing
@@ -324,6 +370,17 @@ Namespace SIS.EDI
                 End If
               End If
           End Select
+          'In all Cases to Transmittal CC Users List| CR-586
+          Dim ccUsers As List(Of String) = emp.GetTransmittalCCUsers(TransmittalID)
+          For Each ccU As String In ccUsers
+            Try
+              Dim ccEmp As emp = emp.GetEmp(ccU.Trim)
+              x = gma(ccEmp, aErr, "CC-Users")
+              If x IsNot Nothing AndAlso Not .CC.Contains(x) Then .CC.Add(x)
+            Catch ex As Exception
+            End Try
+          Next
+          '==========================Tmtl CC Users=======================
         Catch ex As Exception
           EMailIDError = ex.Message
         End Try
@@ -453,5 +510,143 @@ Namespace SIS.EDI
       End Try
       Return strRet
     End Function
+
+    Public Shared Function CommentSubmittedAlertToVendor(ByVal TransmittalID As String) As String
+      Dim oTmtl As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.ediTmtlHGetByID(TransmittalID)
+
+      If oTmtl.t_type <> tmtlType.Vendor Then Return ""
+      If oTmtl.t_ofbp = "SUPI00002" Then Return ""
+
+      Dim oRec As EDICommon.SIS.EDI.dmIsg134 = EDICommon.SIS.EDI.dmIsg134.GetByTransmittalID(TransmittalID, "200")
+
+      Dim aErr As New ArrayList
+
+      Dim oClient As SmtpClient = New SmtpClient("192.9.200.214", 25)
+      Dim oMsg As System.Net.Mail.MailMessage = New System.Net.Mail.MailMessage()
+      oClient.Credentials = New Net.NetworkCredential("adskvaultadmin", "isgec@123")
+
+      Dim Issuer As emp = Nothing
+      Try
+        Issuer = emp.GetEmp(oTmtl.t_isby)
+      Catch ex As Exception
+      End Try
+      Dim Approver As emp = Nothing
+      Try
+        Approver = emp.GetEmp(oTmtl.t_apsu)
+      Catch ex As Exception
+
+      End Try
+      Dim Creator As emp = Nothing
+      Try
+        Creator = emp.GetEmp(oTmtl.t_user)
+      Catch ex As Exception
+
+      End Try
+      With oMsg
+        .Subject = "Comment Submitted Receipt: " & oRec.t_rcno & "_" & oRec.t_revn & " PO: " & oRec.t_orno
+        Dim EMailIDError As String = ""
+        Dim x As MailAddress = Nothing
+        Try
+          Select Case oTmtl.t_type
+            Case tmtlType.Vendor
+              x = gma(Approver, aErr, "VT-Approver-From")
+              If x IsNot Nothing Then
+                .From = x
+                .CC.Add(x)
+              End If
+              Dim tmp As String = emp.GetPOSupplierEmailByReceiptNo(oRec.t_rcno, oRec.t_revn)
+              If tmp = "" Then
+                Dim aTmp() As String = tmp.Split(",;".ToCharArray)
+                For Each stmp As String In aTmp
+                  stmp = stmp.Trim
+                  If stmp <> "" Then
+                    x = New MailAddress(stmp, stmp)
+                    If Not .To.Contains(x) Then .To.Add(x)
+                  End If
+                Next
+              End If
+              x = gma(Creator, aErr, "VT-Creator-CC")
+              If x IsNot Nothing Then .CC.Add(x)
+              'GetPOIssuer From Joomla
+              Dim tmpPONo As String = emp.GetPONoOfReceipt(TransmittalID)
+              If tmpPONo <> "" Then
+                Dim POIssuer As String = emp.GetTCPOIssuer(tmpPONo)
+                Dim POBuyer As String = emp.GetPOBuyer(tmpPONo)
+                x = gma(emp.GetWebUser(POIssuer), aErr, "PO-Issuer")
+                If x IsNot Nothing Then .CC.Add(x)
+                x = gma(emp.GetWebUser(POBuyer), aErr, "PO-Buyer")
+                If x IsNot Nothing Then .CC.Add(x)
+              End If
+          End Select
+        Catch ex As Exception
+          EMailIDError = ex.Message
+        End Try
+        If .To.Count <= 0 Then
+          x = New MailAddress("lalit@isgec.co.in", "Lalit Gupta")
+          If Not .CC.Contains(x) Then .CC.Add(x)
+          .Subject = "CommentSubmitted to supplier, TO address is empty"
+        End If
+        If .From Is Nothing Then
+          x = New MailAddress("lalit@isgec.co.in", "Lalit Gupta")
+          If Not .CC.Contains(x) Then .CC.Add(x)
+          .Subject = "CommentSubmitted to supplier, FROM tmtl approver address is empty"
+        End If
+        '====================
+        Dim TestIDs As New ArrayList
+        If Testing Then
+          For Each xx As MailAddress In .To
+            TestIDs.Add("TO => " & xx.User & " : " & xx.Address)
+          Next
+          .To.Clear()
+          x = New MailAddress("lalit@isgec.co.in", "Lalit Gupta")
+          .To.Add(x)
+          For Each xx As MailAddress In .CC
+            TestIDs.Add("CC => " & xx.User & " : " & xx.Address)
+          Next
+          .CC.Clear()
+        End If
+        '====================
+        .IsBodyHtml = True
+        Dim tblStr As String = EDICommon.SIS.EDI.ediTmtlH.GetHTML(TransmittalID)
+        Dim Header As String = ""
+        Header &= "<html xmlns=""http://www.w3.org/1999/xhtml"">"
+        Header &= "<head>"
+        Header &= "<title></title>"
+        Header &= "</head>"
+        Header &= "<body>"
+        If Testing Then
+          If TestIDs.Count > 0 Then
+            Header &= "<br/>"
+            Header &= "<br/>"
+            Header &= "<table>"
+            Header &= "<tr><td style=""color: red""><i><b>"
+            Header &= "TESTING"
+            Header &= "</b></i></td></tr>"
+            For Each test As String In TestIDs
+              Header &= "<tr><td color=""red""><i>"
+              Header &= test
+              Header &= "</i></td></tr>"
+            Next
+            Header &= "</table>"
+          End If
+        End If
+        Header &= "<table style='margin-left:10px;width:1000px;'>"
+        Header &= "<tr><td style='background-color:DodgerBlue;text-align:center;color:white;font-size:16px;height:30px;verticle-align:middle;'><b>"
+        Header &= "<span>Login to Vendor Portal for commented documents</span>"
+        Header &= "</b></td></tr>"
+        Header &= "</table>"
+        Header &= "<br/>"
+        Header &= "<br/>"
+        Header &= tblStr
+        Header &= "</body></html>"
+        .Body = Header
+      End With
+      Try
+        oClient.Send(oMsg)
+      Catch ex As Exception
+      End Try
+      Return ""
+    End Function
+
   End Class
 End Namespace
