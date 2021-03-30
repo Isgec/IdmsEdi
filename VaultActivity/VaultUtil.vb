@@ -80,6 +80,19 @@ Public Class VaultUtil
     End Try
     Return fileById
   End Function
+  Public Shared Function GetLatestFileIDByFileName(FileName As String) As Long
+    Dim mRet As Long = 0
+    Dim file As Autodesk.Connectivity.WebServices.File = SearchFileByName(FileName, 1L)
+    If Not (file Is Nothing) Then
+      mRet = file.Id
+      Try
+        file = GetLatestFileByID(file.Id)
+        mRet = file.Id
+      Catch ex As Exception
+      End Try
+    End If
+    Return mRet
+  End Function
   Public Shared Function LogInStandard(ByVal serverName As String, ByVal vaultName As String, ByVal userName As String, ByVal password As String) As Boolean
     Try
       If ServiceManager.LogInStandard(serverName, vaultName, userName, password) IsNot Nothing Then
@@ -172,7 +185,7 @@ Public Class VaultUtil
   Public Shared Sub LogOut()
     ServiceManager.LogOut()
   End Sub
-  Public Shared Function SearchFileByName(ByVal fileName As String, Optional ByVal srchOper As Long = 1L) As Autodesk.Connectivity.WebServices.File
+  Public Shared Function SearchFileByName(ByVal fileName As String, Optional ByVal srchOper As VaultUtil.SrchOper = VaultUtil.SrchOper.Contains) As Autodesk.Connectivity.WebServices.File
     Dim file As Autodesk.Connectivity.WebServices.File = Nothing
     Try
       Dim documentService As DocumentService = ServiceManager.GetDocumentService()

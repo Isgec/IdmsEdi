@@ -206,7 +206,7 @@ Namespace SIS.EDI
     Public Shared Function ediTmtlDGetNewRecord() As SIS.EDI.ediTmtlD
       Return New SIS.EDI.ediTmtlD()
     End Function
-    <DataObjectMethod(DataObjectMethodType.Select)> _
+    <DataObjectMethod(DataObjectMethodType.Select)>
     Public Shared Function ediTmtlDGetByID(ByVal t_tran As String, ByVal t_docn As String, ByVal t_revn As String) As SIS.EDI.ediTmtlD
       Dim Results As SIS.EDI.ediTmtlD = Nothing
       Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -227,7 +227,47 @@ Namespace SIS.EDI
       End Using
       Return Results
     End Function
-    <DataObjectMethod(DataObjectMethodType.Select)> _
+    Public Shared Function GetediTmtlD(Comp As String, t_tran As String) As List(Of SIS.EDI.ediTmtlD)
+      Dim Sql As String = ""
+      Sql &= " SELECT a.*, b.t_dttl FROM tdmisg132" & Comp & " as a "
+      Sql &= " INNER JOIN tdmisg001" & Comp & " as b "
+      Sql &= " ON a.t_docn = b.t_docn AND a.t_revn = b.t_revn "
+      Sql &= " WHERE a.t_tran='" & t_tran & "' "
+      Dim Results As List(Of SIS.EDI.ediTmtlD) = Nothing
+      Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
+        Using Cmd As SqlCommand = Con.CreateCommand()
+          Cmd.CommandType = CommandType.Text
+          Cmd.CommandText = Sql
+          Results = New List(Of SIS.EDI.ediTmtlD)()
+          Con.Open()
+          Dim Reader As SqlDataReader = Cmd.ExecuteReader()
+          While (Reader.Read())
+            Results.Add(New SIS.EDI.ediTmtlD(Reader))
+          End While
+          Reader.Close()
+        End Using
+      End Using
+      Return Results
+    End Function
+
+    Public Shared Function GetstdFileName(Comp As String, documentID As String) As String
+      Dim Sql As String = ""
+      Sql &= " SELECT isnull(a.t_dttl,'') FROM tdmisg007" & Comp & " as a "
+      Sql &= " WHERE a.t_docn='" & documentID & "' "
+      Sql &= " and  a.t_revn=(select max(b.t_revn) from tdmisg007" & Comp & " as b where b.t_docn=a.t_docn ) "
+      Dim Results As String = ""
+      Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
+        Using Cmd As SqlCommand = Con.CreateCommand()
+          Cmd.CommandType = CommandType.Text
+          Cmd.CommandText = Sql
+          Con.Open()
+          Results = Cmd.ExecuteScalar
+        End Using
+      End Using
+      Return Results
+    End Function
+
+    <DataObjectMethod(DataObjectMethodType.Select)>
     Public Shared Function ediTmtlDSelectList(ByVal StartRowIndex As Integer, ByVal MaximumRows As Integer, ByVal OrderBy As String, ByVal SearchState As Boolean, ByVal SearchText As String, ByVal t_tran As String, ByVal t_docn As String, ByVal t_revn As String) As List(Of SIS.EDI.ediTmtlD)
       Dim Results As List(Of SIS.EDI.ediTmtlD) = Nothing
       Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())

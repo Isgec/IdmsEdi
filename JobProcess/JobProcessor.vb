@@ -46,66 +46,81 @@ Public Class JobProcessor
   End Sub
   Public Overrides Sub Process()
     Try
-      Dim I As Integer = 0
-      'Get 1 Transmittal at a time from BaaN as Job
-      Dim TransmittalID As String = ""
-      Dim DocCount As Integer = 0
-      Dim Jobs As List(Of jobFile) = jobFile.SelectList(TransmittalID, DocCount, AddressOf msg)
-      Dim AllDocumentProcessed As Boolean = True
-      For Each tmpJob As jobFile In Jobs
-        TransmittalID = tmpJob.TransmittalID
-        I += 1
-        msg(I & ".====================")
-        Try
-          tmpJob = ProcessJobFile(tmpJob)
-          RaiseEvent ProcessedFile(tmpJob.SerializedPath)
-        Catch ex As Exception
-          msg(ex.Message)
-          AllDocumentProcessed = False
-        End Try
-      Next
-      If TransmittalID <> "" Then
-        Dim tmtlH As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.ediTmtlHGetByID(TransmittalID)
-        If Jobs.Count <= 0 Then
-          If DocCount > 0 Then
-            tmtlH.t_edif = 4 'Document NOT in Document Master
-            EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
-          Else
-            tmtlH.t_edif = 3 'Error
-            EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
-          End If
-        ElseIf AllDocumentProcessed Then
-          tmtlH.t_edif = 1 'YES
-          msg("Sending E-Mail.")
+      For Each cmp As Company In jpConfig.Companies
+        ERPCompany = cmp.ERPCompany
+        DBCommon.FinanceCompany = cmp.ERPCompany
+        Dim I As Integer = 0
+        'Get 1 Transmittal at a time from BaaN as Job
+        Dim TransmittalID As String = ""
+        Dim DocCount As Integer = 0
+        Dim Jobs As List(Of jobFile) = jobFile.SelectList(TransmittalID, DocCount, cmp, AddressOf msg)
+        Dim AllDocumentProcessed As Boolean = True
+        For Each tmpJob As jobFile In Jobs
+          TransmittalID = tmpJob.TransmittalID
+          I += 1
+          msg(I & ".====================")
           Try
-            Dim mailBody As String = ""
-            mailBody = SIS.EDI.ediAlerts.TmtlAlert(TransmittalID)
-            msg("E-Mail sent")
-            EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
-            '=============================
-            Try
-              msg("Sending Alert to vendor(comment submitted)")
-              SIS.EDI.ediAlerts.CommentSubmittedAlertToVendor(TransmittalID)
-              msg("Sent comment submitted")
-            Catch ex As Exception
-              msg("Error: Alert to Vendor")
-            End Try
-            '=============================
-            Try
-              PublishInDMS(tmtlH, mailBody, Jobs)
-            Catch ex As Exception
-              msg("Error Publishing File in DMS : " & ex.Message)
-            End Try
-            '=============================
+            tmpJob = ProcessJobFile(tmpJob)
+            RaiseEvent ProcessedFile(tmpJob.SerializedPath)
           Catch ex As Exception
-            msg("Error Sending E-Mail." & ex.Message)
+            msg(ex.Message)
+            AllDocumentProcessed = False
           End Try
-        Else
-          msg("All Docs NOT be downloaded or converted to PDF: " & TransmittalID)
-          tmtlH.t_edif = 3 'Error
-          EDICommon.SIS.EDI.ediTmtlH.UpdateData(tmtlH)
+        Next
+        If TransmittalID <> "" Then
+          Dim tmtlH As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.GetTmtlH(TransmittalID, cmp.ERPCompany)
+          If Jobs.Count <= 0 Then
+            If DocCount > 0 Then
+              tmtlH.t_edif = 4 'Document NOT in Document Master
+              EDICommon.SIS.EDI.ediTmtlH.UpdateEdiF(tmtlH.t_tran, 4, cmp.ERPCompany)
+            Else
+              tmtlH.t_edif = 3 'Error
+              EDICommon.SIS.EDI.ediTmtlH.UpdateEdiF(tmtlH.t_tran, 3, cmp.ERPCompany)
+            End If
+          ElseIf AllDocumentProcessed Then
+            tmtlH.t_edif = 1 'YES
+            msg("Sending E-Mail.")
+            Try
+              Dim mailBody As String = ""
+              mailBody = SIS.EDI.ediAlerts.TmtlAlert(TransmittalID, cmp.ERPCompany)
+              msg("E-Mail sent")
+              EDICommon.SIS.EDI.ediTmtlH.UpdateEdiF(tmtlH.t_tran, 1, cmp.ERPCompany)
+              '=============================
+              'Update Issued PO from Transmittal is disabled
+              'If tmtlH.t_type = 4 Then
+              '  Try
+              '    IssuedPO.SIS.PAK.erpData.erpPO.UpdateIssuedPO(TransmittalID, cmp.ERPCompany, AddressOf msg)
+              '  Catch ex As Exception
+              '    msg("Error: Update Issued PO: " & ex.Message)
+              '  End Try
+              'End If
+              '=============================
+              Try
+                msg("Sending Alert to vendor(comment submitted)")
+                SIS.EDI.ediAlerts.CommentSubmittedAlertToVendor(TransmittalID, cmp.ERPCompany)
+                msg("Sent comment submitted")
+              Catch ex As Exception
+                msg("Error: Alert to Vendor")
+              End Try
+              '=============================
+              Try
+                If cmp.PublishInDMS Then
+                  PublishInDMS(tmtlH, mailBody, Jobs)
+                End If
+              Catch ex As Exception
+                msg("Error Publishing File in DMS : " & ex.Message)
+              End Try
+              '=============================
+            Catch ex As Exception
+              msg("Error: " & ex.Message)
+            End Try
+          Else
+            msg("All Docs NOT be downloaded or converted to PDF: " & TransmittalID)
+            tmtlH.t_edif = 3 'Error
+            EDICommon.SIS.EDI.ediTmtlH.UpdateEdiF(tmtlH.t_tran, 3, cmp.ERPCompany)
+          End If
         End If
-      End If
+      Next
     Catch ex As Exception
       msg(ex.Message)
     End Try
@@ -367,14 +382,13 @@ Public Class JobProcessor
     Catch ex As Exception
     End Try
 
-    'Dim tmpIm As Impersonator = Impersonator.Impersonate("adskvault", "192.9.200.51", "adskvault@123")
 
     EDICommon.DBCommon.BaaNLive = jpConfig.BaaNLive
     EDICommon.DBCommon.JoomlaLive = jpConfig.JoomlaLive
     SIS.EDI.ediAlerts.Testing = jpConfig.Testing
     EJI.DBCommon.BaaNLive = jpConfig.BaaNLive
     EJI.DBCommon.JoomlaLive = jpConfig.JoomlaLive
-    EJI.DBCommon.ERPCompany = "200"
+    EJI.DBCommon.ERPCompany = jpConfig.ISGECVaultCompany
     EJI.DBCommon.IsLocalISGECVault = jpConfig.IsLocalISGECVault
     EJI.DBCommon.ISGECVaultIP = jpConfig.ISGECVaultIP
 

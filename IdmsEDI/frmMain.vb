@@ -15,7 +15,8 @@ Public Class frmMain
   End Sub
   Private Sub Start(ByVal lt As ListBox, ByVal lb As Label)
     jp = New JobProcess.JobProcessor(lt, lb)
-    jp.jpConfig = ConfigFile.GetFile(Application.StartupPath & "\Settings.xml")
+    'jp.jpConfig = ConfigFile.GetFile(Application.StartupPath & "\Settings.xml")
+    jp.jpConfig = ConfigFile.DeSerialize(Nothing, Application.StartupPath & "\Settings.xml")
     jp.jpConfig.StartupPath = Application.StartupPath
     jp.Start()
   End Sub

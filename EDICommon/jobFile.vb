@@ -108,6 +108,19 @@ Public Class jobFile
   Public Property TransmittalID As String = ""
   Public Property CreatedBy As String = ""
   Public Property CreatedOn As String = ""
+  Public Property ERPCompany As String = ""
+  Public Property IsSTD As Boolean = False
+  Public Property stdFileName As String = ""
+  Public ReadOnly Property athIndex As String
+    Get
+      Return DocumentID & "_" & RevisionNo
+    End Get
+  End Property
+  Public ReadOnly Property athHandle As String
+    Get
+      Return "DOCUMENTMASTERPDF_" & ERPCompany
+    End Get
+  End Property
   Public ReadOnly Property PDFFileName As String
     Get
       Return DocumentID & ".pdf"
@@ -125,61 +138,79 @@ Public Class jobFile
   Public Property JobCreationTime As String = ""
   Public Delegate Sub showMsg(ByVal str As String)
 
-  Public Shared Function SelectList(ByRef TransmittalID As String, ByRef DocCount As Integer, Optional ByVal msg As showMsg = Nothing) As List(Of jobFile)
+  Public Shared Function SelectList(ByRef TransmittalID As String, ByRef DocCount As Integer, ByVal Comp As Company, Optional ByVal msg As showMsg = Nothing) As List(Of jobFile)
     Dim tmp As New List(Of jobFile)
     Dim Page As Integer = 0
     Dim Size As Integer = 1
 
-    Dim tmtlHs As List(Of SIS.EDI.ediTmtlH) = SIS.EDI.ediTmtlH.ediTmtlHSelectList(Page, Size, "", False, "", "")
+    Dim tmtlHs As List(Of SIS.EDI.ediTmtlH) = SIS.EDI.ediTmtlH.GetediTmtlH(Comp.ERPCompany)
     If tmtlHs.Count > 0 Then
       TransmittalID = tmtlHs(0).t_tran
       If msg IsNot Nothing Then
         msg.Invoke("TransmittalID: " & tmtlHs(0).t_tran)
       End If
       For Each tmtlH As SIS.EDI.ediTmtlH In tmtlHs
-        Dim xPage As Integer = 0
-        Dim xSize As Integer = 50
+
         Dim DocID As Integer = 113
         Dim RevID As Integer = 123
         Dim VaultDB As String = "BOILER"
-        Select Case tmtlH.t_tran.Substring(0, 3)
-          Case "BOI"
-            VaultDB = "BOILER"
-          Case "SMD"
-            VaultDB = "SMD"
-          Case "EPC"
-            VaultDB = "EPC"
-          Case "PCD"
-            VaultDB = "PC"
-          Case "APC"
-            VaultDB = "ESP"
+        Dim stdKey As String = "BLS"
+        Select Case Comp.ERPCompany
+          Case "200"
+            Select Case tmtlH.t_tran.Substring(0, 3)
+              Case "BOI"
+                VaultDB = "BOILER"
+                stdKey = "BLS"
+              Case "SMD"
+                VaultDB = "SMD"
+                stdKey = "SMD"
+              Case "EPC"
+                VaultDB = "EPC"
+                stdKey = "EPC"
+              Case "PCD"
+                VaultDB = "PC"
+                stdKey = "PCB"
+              Case "APC"
+                VaultDB = "ESP"
+                stdKey = "ESP"
+            End Select
+          Case Else
+            VaultDB = Comp.VaultDB
         End Select
+
         'Get The Attribute IDs for Document ID & Rev No for Vault
         DocID = GetDocID(VaultDB)
         RevID = GetRevID(VaultDB)
         'Get All Documents In Transmittal
-        Dim tmtlDs As List(Of SIS.EDI.ediTmtlD) = SIS.EDI.ediTmtlD.ediTmtlDSelectList(xPage, xSize, "", False, "", tmtlH.t_tran, "", "")
-        DocCount = SIS.EDI.ediTmtlD.RecordCount
+        Dim tmtlDs As List(Of SIS.EDI.ediTmtlD) = SIS.EDI.ediTmtlD.GetediTmtlD(Comp.ERPCompany, tmtlH.t_tran)
+        DocCount = tmtlDs.Count
         If msg IsNot Nothing Then
           msg.Invoke("Documents in transmittal: " & DocCount)
         End If
         Dim dCnt As Integer = 0
-        Do While tmtlDs.Count > 0
-          For Each tmtlD As SIS.EDI.ediTmtlD In tmtlDs
-            If msg IsNot Nothing Then
-              dCnt += 1
-              msg.Invoke(dCnt & ". Finding Vault FileID for: " & tmtlD.t_docn & " Rev.:" & tmtlD.t_revn)
-            End If
-            Dim x As New jobFile
-            x.CreatedBy = tmtlH.t_user
-            x.CreatedOn = tmtlH.t_date
-            x.VaultDB = VaultDB
-            x.TransmittalID = tmtlD.t_tran
-            x.DocumentID = tmtlD.t_docn
-            x.RevisionNo = tmtlD.t_revn
+        For Each tmtlD As SIS.EDI.ediTmtlD In tmtlDs
+          If msg IsNot Nothing Then
+            dCnt += 1
+            msg.Invoke(dCnt & ". Finding Vault FileID for: " & tmtlD.t_docn & " Rev.:" & tmtlD.t_revn)
+          End If
+          Dim x As New jobFile
+          x.ERPCompany = Comp.ERPCompany
+          x.CreatedBy = tmtlH.t_user
+          x.CreatedOn = tmtlH.t_date
+          x.VaultDB = VaultDB
+          x.TransmittalID = tmtlD.t_tran
+          x.DocumentID = tmtlD.t_docn
+          x.RevisionNo = tmtlD.t_revn
+
+          Dim stdDocumentID As String = x.DocumentID.Substring(7)
+          If stdDocumentID.StartsWith(stdKey) Then x.IsSTD = True
+
+          If x.IsSTD Then
+            x.stdFileName = SIS.EDI.ediTmtlD.GetstdFileName(Comp.ERPCompany, stdDocumentID)
+          Else
             x.FileID = GetEntityID(x.DocumentID, x.RevisionNo, x.VaultDB, DocID, RevID)
             If x.FileID <= "0" Then
-              msg.Invoke("Syncking ISGEC Property for " & tmtlD.t_docn & " Rev.:" & tmtlD.t_revn)
+              msg.Invoke("Synchronizing ISGEC Property for " & tmtlD.t_docn & " Rev.:" & tmtlD.t_revn)
               SyncIsgecProperty(x.VaultDB, DocID, RevID)
               x.FileID = GetEntityID(x.DocumentID, x.RevisionNo, x.VaultDB, DocID, RevID)
             End If
@@ -189,10 +220,8 @@ Public Class jobFile
             Else
               msg.Invoke("Error: File ID NOT found in Vault." & tmtlD.t_docn & " Rev.:" & tmtlD.t_revn)
             End If
-          Next
-          xPage += xSize
-          tmtlDs = SIS.EDI.ediTmtlD.ediTmtlDSelectList(xPage, xSize, "", False, "", tmtlH.t_tran, "", "")
-        Loop
+          End If
+        Next
       Next
     End If
     Return tmp

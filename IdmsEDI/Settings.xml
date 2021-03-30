@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Settings>
+<ConfigFile xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <VaultUserName>VAULTPROCESS</VaultUserName>
   <VaultUserPassword>VAULTPROCESS</VaultUserPassword>
   <VaultServer>BRAHMA</VaultServer>
@@ -19,4 +19,23 @@
   <Testing>false</Testing>
   <IsLocalISGECVault>false</IsLocalISGECVault>
   <ISGECVaultIP>192.9.200.146</ISGECVaultIP>
-</Settings>
+  <ISGECVaultCompany>200</ISGECVaultCompany>
+  <FinanceCompany>200</FinanceCompany>
+  <Companies>
+    <Company>
+      <ERPCompany>200</ERPCompany>
+      <VaultDB>HardCodedBasedOnTransmittalSeries</VaultDB>
+      <PublishInDMS>true</PublishInDMS>
+    </Company>
+    <Company>
+      <ERPCompany>700</ERPCompany>
+      <VaultDB>ISGEC REDECAM</VaultDB>
+      <PublishInDMS>false</PublishInDMS>
+    </Company>
+    <Company>
+      <ERPCompany>651</ERPCompany>
+      <VaultDB>ISGEC COVEMA</VaultDB>
+      <PublishInDMS>false</PublishInDMS>
+    </Company>
+  </Companies>
+</ConfigFile>

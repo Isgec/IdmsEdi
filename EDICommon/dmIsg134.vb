@@ -58,7 +58,7 @@ Namespace SIS.EDI
     Public Property t_apid_5 As String = ""
     Public Property t_apid_6 As String = ""
     Public Property t_apid_7 As String = ""
-    Public Shared Function GetByTransmittalID(TmtlID As String, Optional ERPCompany As String = "200") As SIS.EDI.dmIsg134
+    Public Shared Function GetByTransmittalID(TmtlID As String, ERPCompany As String) As SIS.EDI.dmIsg134
       Dim mRet As SIS.EDI.dmIsg134 = Nothing
       Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
         Using Cmd As SqlCommand = Con.CreateCommand()

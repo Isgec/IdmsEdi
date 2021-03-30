@@ -8,6 +8,7 @@ Public Class DBCommon
   Implements IDisposable
   Public Shared Property BaaNLive As Boolean = False
   Public Shared Property JoomlaLive As Boolean = False
+  Public Shared Property FinanceCompany As String = "200"
   Public Shared Function GetBaaNConnectionString() As String
     If BaaNLive Then
       Return "Data Source=192.9.200.129;Initial Catalog=inforerpdb;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=lalit;Password=scorpions"
@@ -19,6 +20,48 @@ Public Class DBCommon
     Return "Data Source=192.9.200.119\autodeskvault;Initial Catalog=" & vaultDB & ";Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=Isgec@123"
   End Function
   Public Shared Function GetConnectionString() As String
+    If JoomlaLive Then
+      Select Case FinanceCompany
+        Case "700"
+          Return "Data Source=192.9.200.150;Initial Catalog=REDECAM;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Case "651"
+          Return "Data Source=192.9.200.150;Initial Catalog=ICL;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Case Else
+          Return "Data Source=192.9.200.150;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+      End Select
+    Else
+      Select Case FinanceCompany
+        Case "700"
+          Return "Data Source=.\LGSQL;Initial Catalog=REDECAM;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Case "651"
+          Return "Data Source=.\LGSQL;Initial Catalog=ICL;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Case Else
+          Return "Data Source=.\LGSQL;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+      End Select
+    End If
+  End Function
+  Public Shared Function GetConnectionString(Comp As String) As String
+    If JoomlaLive Then
+      Select Case Comp
+        Case "700"
+          Return "Data Source=192.9.200.150;Initial Catalog=REDECAM;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Case "651"
+          Return "Data Source=192.9.200.150;Initial Catalog=ICL;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Case Else
+          Return "Data Source=192.9.200.150;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+      End Select
+    Else
+      Select Case Comp
+        Case "700"
+          Return "Data Source=.\LGSQL;Initial Catalog=REDECAM;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Case "651"
+          Return "Data Source=.\LGSQL;Initial Catalog=ICL;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Case Else
+          Return "Data Source=.\LGSQL;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+      End Select
+    End If
+  End Function
+  Public Shared Function GetToolsConnectionString() As String
     If JoomlaLive Then
       Return "Data Source=192.9.200.150;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
     Else

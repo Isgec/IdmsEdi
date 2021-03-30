@@ -17,13 +17,13 @@ Namespace SIS.EDI
       Public Property empEMail As String = ""
       Public Property webUser As String = ""
 
-      Public Shared Function GetEmp(ByVal empID As Integer) As emp
+      Public Shared Function GetEmp(ByVal empID As Integer, comp As String) As emp
         Dim mSql As String = ""
         mSql = mSql & " select "
         mSql = mSql & " emp1.t_nama as empName,"
         mSql = mSql & " bpe1.t_mail as empEMail "
-        mSql = mSql & " from ttccom001200 as emp1 "
-        mSql = mSql & " left outer join tbpmdm001200 as bpe1 on emp1.t_emno=bpe1.t_emno "
+        mSql = mSql & " from ttccom001" & comp & " as emp1 "
+        mSql = mSql & " left outer join tbpmdm001" & comp & " as bpe1 on emp1.t_emno=bpe1.t_emno "
         mSql = mSql & " where emp1.t_emno = '" & empID & "'"
         Dim tmp As emp = Nothing
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -46,11 +46,11 @@ Namespace SIS.EDI
         Return tmp
       End Function
 
-      Public Shared Function GetReceiptCreator(ByVal tmtlID As String) As String
+      Public Shared Function GetReceiptCreator(ByVal tmtlID As String, comp As String) As String
         Dim mSql As String = ""
         mSql = mSql & " select "
         mSql = mSql & " t_user as [user] "
-        mSql = mSql & " from tdmisg134200 "
+        mSql = mSql & " from tdmisg134" & comp & " "
         mSql = mSql & " where t_trno = '" & tmtlID & "'"
         Dim tmp As String = ""
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -67,11 +67,11 @@ Namespace SIS.EDI
         End Using
         Return tmp
       End Function
-      Public Shared Function GetPONoOfReceipt(ByVal tmtlID As String) As String
+      Public Shared Function GetPONoOfReceipt(ByVal tmtlID As String, comp As String) As String
         Dim mSql As String = ""
         mSql = mSql & " select top 1 "
         mSql = mSql & " t_orno  "
-        mSql = mSql & " from tdmisg134200 "
+        mSql = mSql & " from tdmisg134" & comp & " "
         mSql = mSql & " where t_trno = '" & tmtlID & "'"
         Dim tmp As String = ""
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -85,11 +85,11 @@ Namespace SIS.EDI
         End Using
         Return tmp
       End Function
-      Public Shared Function GetSiteEmailIDs(ByVal ProjectID As String, ByVal AddressID As String) As String
+      Public Shared Function GetSiteEmailIDs(ByVal ProjectID As String, ByVal AddressID As String, Comp As String) As String
         Dim mSql As String = ""
         mSql = mSql & " select top 1 "
         mSql = mSql & " t_mail  "
-        mSql = mSql & " from tdmisg126200 "
+        mSql = mSql & " from tdmisg126" & Comp & " "
         mSql = mSql & " where t_cprj = '" & ProjectID & "'"
         mSql = mSql & " and   t_cadr = '" & AddressID & "'"
         Dim tmp As String = ""
@@ -104,11 +104,11 @@ Namespace SIS.EDI
         End Using
         Return tmp
       End Function
-      Public Shared Function GetVendorEmailIDs(ByVal VendorID As String, ByVal AddressID As String) As String
+      Public Shared Function GetVendorEmailIDs(ByVal VendorID As String, ByVal AddressID As String, comp As String) As String
         Dim mSql As String = ""
         mSql = mSql & " select top 1 "
         mSql = mSql & " t_mail  "
-        mSql = mSql & " from tdmisg128200 "
+        mSql = mSql & " from tdmisg128" & comp & " "
         mSql = mSql & " where t_ofbp = '" & VendorID & "'"
         mSql = mSql & " and   t_cadr = '" & AddressID & "'"
         Dim tmp As String = ""
@@ -168,7 +168,7 @@ Namespace SIS.EDI
         mSql = mSql & " from aspnet_users "
         mSql = mSql & " where username = '" & webUser & "'"
         Dim tmp As emp = Nothing
-        Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetConnectionString())
+        Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetToolsConnectionString())
           Using Cmd As SqlCommand = Con.CreateCommand()
             Cmd.CommandType = CommandType.Text
             Cmd.CommandText = mSql
@@ -194,7 +194,7 @@ Namespace SIS.EDI
         mSql = mSql & " from vr_businessPartner as aa "
         mSql = mSql & " inner join pak_po as bb on aa.bpid=bb.supplierid "
         mSql = mSql & " inner join pak_polinerec as cc on bb.serialno=cc.serialno "
-        mSql = mSql & " where cc.receiptno='" & ReceiptNo & " and cc.revisionno='" & RevisionNo & "'"
+        mSql = mSql & " where cc.receiptno='" & ReceiptNo & "' and cc.revisionno='" & RevisionNo & "'"
         Dim tmp As String = ""
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetConnectionString())
           Using Cmd As SqlCommand = Con.CreateCommand()
@@ -210,11 +210,11 @@ Namespace SIS.EDI
         End Using
         Return tmp
       End Function
-      Public Shared Function GetTransmittalCCUsers(ByVal tmtlID As String) As List(Of String)
+      Public Shared Function GetTransmittalCCUsers(ByVal tmtlID As String, comp As String) As List(Of String)
         Dim mSql As String = ""
         mSql = mSql & " select "
         mSql = mSql & " isnull(t_emno,'') as [user] "
-        mSql = mSql & " from tdmisg031200 "
+        mSql = mSql & " from tdmisg031" & comp & " "
         mSql = mSql & " where t_tran = '" & tmtlID & "'"
         Dim tmp As New List(Of String)
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -248,9 +248,9 @@ Namespace SIS.EDI
       End If
       Return x
     End Function
-    Public Shared Function TmtlAlert(ByVal TransmittalID As String) As String
+    Public Shared Function TmtlAlert(ByVal TransmittalID As String, Comp As String) As String
       Dim documentBody As String = ""
-      Dim oTmtl As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.ediTmtlHGetByID(TransmittalID)
+      Dim oTmtl As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.GetTmtlH(TransmittalID, Comp)
 
       Dim aErr As New ArrayList
       Dim mRet As String = ""
@@ -260,18 +260,18 @@ Namespace SIS.EDI
 
       Dim Issuer As emp = Nothing
       Try
-        Issuer = emp.GetEmp(oTmtl.t_isby)
+        Issuer = emp.GetEmp(oTmtl.t_isby, Comp)
       Catch ex As Exception
       End Try
       Dim Approver As emp = Nothing
       Try
-        Approver = emp.GetEmp(oTmtl.t_apsu)
+        Approver = emp.GetEmp(oTmtl.t_apsu, Comp)
       Catch ex As Exception
 
       End Try
       Dim Creator As emp = Nothing
       Try
-        Creator = emp.GetEmp(oTmtl.t_user)
+        Creator = emp.GetEmp(oTmtl.t_user, Comp)
       Catch ex As Exception
 
       End Try
@@ -292,7 +292,7 @@ Namespace SIS.EDI
               x = gma(Creator, aErr, "CT-Creator-CC")
               If x IsNot Nothing Then .CC.Add(x)
             Case tmtlType.Internal
-              Dim IssuedTo As emp = emp.GetEmp(oTmtl.t_logn)
+              Dim IssuedTo As emp = emp.GetEmp(oTmtl.t_logn, Comp)
               x = gma(Issuer, aErr, "IT-Issuer-From")
               If x IsNot Nothing Then
                 .From = x
@@ -315,7 +315,7 @@ Namespace SIS.EDI
               x = gma(Creator, aErr, "ST-Creator-CC")
               If x IsNot Nothing Then .CC.Add(x)
               'Transmittal Site Address
-              Dim SiteIDs As String = emp.GetSiteEmailIDs(oTmtl.t_cprj, oTmtl.t_padr)
+              Dim SiteIDs As String = emp.GetSiteEmailIDs(oTmtl.t_cprj, oTmtl.t_padr, Comp)
               If SiteIDs <> "" Then
                 Dim aIDs() As String = SiteIDs.Split(",;".ToCharArray)
                 For Each id As String In aIDs
@@ -332,12 +332,12 @@ Namespace SIS.EDI
                 .From = x
                 .CC.Add(x)
               End If
-              Dim tmp As String = emp.GetReceiptCreator(TransmittalID)
+              Dim tmp As String = emp.GetReceiptCreator(TransmittalID, Comp)
               If tmp.ToLower = "supplier" Or tmp = "" Then
                 x = gma(Approver, aErr, "VT-Approver-To")
                 If x IsNot Nothing Then .To.Add(x)
               Else
-                Dim tmpR As emp = emp.GetEmp(tmp)
+                Dim tmpR As emp = emp.GetEmp(tmp, Comp)
                 x = gma(tmpR, aErr, "VT-ReceiptCreator-To")
                 If x IsNot Nothing Then .To.Add(x)
                 x = gma(Approver, aErr, "VT-Approver-CC")
@@ -346,7 +346,7 @@ Namespace SIS.EDI
               x = gma(Creator, aErr, "VT-Creator-CC")
               If x IsNot Nothing Then .CC.Add(x)
               'GetPOIssuer From Joomla
-              Dim tmpPONo As String = emp.GetPONoOfReceipt(TransmittalID)
+              Dim tmpPONo As String = emp.GetPONoOfReceipt(TransmittalID, Comp)
               If tmpPONo <> "" Then
                 Dim POIssuer As String = emp.GetTCPOIssuer(tmpPONo)
                 Dim POBuyer As String = emp.GetPOBuyer(tmpPONo)
@@ -357,7 +357,7 @@ Namespace SIS.EDI
               End If
               If oTmtl.t_ofbp = "SUPI00002" And oTmtl.t_issu = "007" Then
                 'Transmittal Supplier Address
-                Dim SiteIDs As String = emp.GetVendorEmailIDs(oTmtl.t_ofbp, oTmtl.t_vadr)
+                Dim SiteIDs As String = emp.GetVendorEmailIDs(oTmtl.t_ofbp, oTmtl.t_vadr, Comp)
                 If SiteIDs <> "" Then
                   Dim aIDs() As String = SiteIDs.Split(",;".ToCharArray)
                   For Each id As String In aIDs
@@ -371,10 +371,10 @@ Namespace SIS.EDI
               End If
           End Select
           'In all Cases to Transmittal CC Users List| CR-586
-          Dim ccUsers As List(Of String) = emp.GetTransmittalCCUsers(TransmittalID)
+          Dim ccUsers As List(Of String) = emp.GetTransmittalCCUsers(TransmittalID, Comp)
           For Each ccU As String In ccUsers
             Try
-              Dim ccEmp As emp = emp.GetEmp(ccU.Trim)
+              Dim ccEmp As emp = emp.GetEmp(ccU.Trim, Comp)
               x = gma(ccEmp, aErr, "CC-Users")
               If x IsNot Nothing AndAlso Not .CC.Contains(x) Then .CC.Add(x)
             Catch ex As Exception
@@ -422,31 +422,11 @@ Namespace SIS.EDI
         End If
         '====================
         .IsBodyHtml = True
-        Dim tblStr As String = EDICommon.SIS.EDI.ediTmtlH.GetHTML(TransmittalID)
+        Dim tblStr As String = EDICommon.SIS.EDI.ediTmtlH.GetHTML(TransmittalID, Comp)
         Dim Header As String = ""
         Header &= "<html xmlns=""http://www.w3.org/1999/xhtml"">"
         Header &= "<head>"
         Header &= "<title></title>"
-        'Header &= "<style>"
-        'Header &= "table{"
-
-        'Header &= "border: solid 1pt black;"
-        'Header &= "border-collapse:collapse;"
-        'Header &= "font-family: Tahoma;}"
-
-        'Header &= "td{"
-        'Header &= "border: solid 1pt black;"
-        'Header &= "font-family: Tahoma;"
-        'Header &= "font-size: 12px;"
-        'Header &= "padding: 2px 2px 4px 4px;"
-        'Header &= "vertical-align:middle;}"
-
-        'Header &= "a{"
-        'Header &= "color: white;}"
-        'Header &= "a:hover{"
-        'Header &= "color: hotpink;}"
-
-        'Header &= "</style>"
         Header &= "</head>"
         Header &= "<body>"
         documentBody = Header
@@ -487,7 +467,7 @@ Namespace SIS.EDI
         End If
         Header &= "<table style='margin-left:10px;width:1000px;'>"
         Header &= "<tr><td style='background-color:DodgerBlue;text-align:center;color:white;font-size:16px;height:30px;verticle-align:middle;'><b>"
-        Header &= "<a href='http://192.9.200.146/WebEitl1/ediWTmtlH.aspx?t_tran=" & TransmittalID & "'>Click to Download Transmittal Documents</a>"
+        Header &= "<a href='http://192.9.200.146/WebEitl1/ediWTmtlH.aspx?t_tran=" & TransmittalID & "&comp=" & Comp & "'>Click to Download Transmittal Documents</a>"
         Header &= "</b></td></tr>"
         Header &= "</table>"
         Header &= "<br/>"
@@ -511,13 +491,13 @@ Namespace SIS.EDI
       Return strRet
     End Function
 
-    Public Shared Function CommentSubmittedAlertToVendor(ByVal TransmittalID As String) As String
-      Dim oTmtl As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.ediTmtlHGetByID(TransmittalID)
+    Public Shared Function CommentSubmittedAlertToVendor(ByVal TransmittalID As String, comp As String) As String
+      Dim oTmtl As EDICommon.SIS.EDI.ediTmtlH = EDICommon.SIS.EDI.ediTmtlH.GetTmtlH(TransmittalID, comp)
 
       If oTmtl.t_type <> tmtlType.Vendor Then Return ""
       If oTmtl.t_ofbp = "SUPI00002" Then Return ""
 
-      Dim oRec As EDICommon.SIS.EDI.dmIsg134 = EDICommon.SIS.EDI.dmIsg134.GetByTransmittalID(TransmittalID, "200")
+      Dim oRec As EDICommon.SIS.EDI.dmIsg134 = EDICommon.SIS.EDI.dmIsg134.GetByTransmittalID(TransmittalID, comp)
 
       Dim aErr As New ArrayList
 
@@ -527,18 +507,18 @@ Namespace SIS.EDI
 
       Dim Issuer As emp = Nothing
       Try
-        Issuer = emp.GetEmp(oTmtl.t_isby)
+        Issuer = emp.GetEmp(oTmtl.t_isby, comp)
       Catch ex As Exception
       End Try
       Dim Approver As emp = Nothing
       Try
-        Approver = emp.GetEmp(oTmtl.t_apsu)
+        Approver = emp.GetEmp(oTmtl.t_apsu, comp)
       Catch ex As Exception
 
       End Try
       Dim Creator As emp = Nothing
       Try
-        Creator = emp.GetEmp(oTmtl.t_user)
+        Creator = emp.GetEmp(oTmtl.t_user, comp)
       Catch ex As Exception
 
       End Try
@@ -568,7 +548,7 @@ Namespace SIS.EDI
               x = gma(Creator, aErr, "VT-Creator-CC")
               If x IsNot Nothing Then .CC.Add(x)
               'GetPOIssuer From Joomla
-              Dim tmpPONo As String = emp.GetPONoOfReceipt(TransmittalID)
+              Dim tmpPONo As String = emp.GetPONoOfReceipt(TransmittalID, comp)
               If tmpPONo <> "" Then
                 Dim POIssuer As String = emp.GetTCPOIssuer(tmpPONo)
                 Dim POBuyer As String = emp.GetPOBuyer(tmpPONo)
@@ -607,7 +587,7 @@ Namespace SIS.EDI
         End If
         '====================
         .IsBodyHtml = True
-        Dim tblStr As String = EDICommon.SIS.EDI.ediTmtlH.GetHTML(TransmittalID)
+        Dim tblStr As String = EDICommon.SIS.EDI.ediTmtlH.GetHTML(TransmittalID, comp, False)
         Dim Header As String = ""
         Header &= "<html xmlns=""http://www.w3.org/1999/xhtml"">"
         Header &= "<head>"

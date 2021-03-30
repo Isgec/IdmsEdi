@@ -55,6 +55,10 @@ Public Class vltUtility
     jp.msg("Login in Vault.")
     If VaultActivity.VaultUtil.Login(Job.VaultDB) Then
       Try
+        If Job.IsSTD Then
+          Job.FileID = VaultActivity.VaultUtil.GetLatestFileIDByFileName(Job.stdFileName)
+          Job.FileName = Job.stdFileName
+        End If
         jp.msg("Downloading " & Job.FileName)
         VaultActivity.VaultUtil.DownloadFile(Convert.ToInt64(Job.FileID), jpConfig.TempFolderPath)
       Catch ex As Exception

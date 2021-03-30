@@ -1,22 +1,9 @@
 ﻿Imports Autodesk.AutoCAD.ApplicationServices
-Imports Autodesk.AutoCAD.ApplicationServices.Core
 Imports Autodesk.AutoCAD.DatabaseServices
 Imports Autodesk.AutoCAD.Geometry
 Imports Autodesk.AutoCAD.PlottingServices
-Imports Autodesk.AutoCAD.Interop
-Imports Autodesk.AutoCAD.Interop.Common
 Imports Autodesk.AutoCAD.Runtime
-Imports System.IO
-Imports System.Xml
-Imports System.Xml.Serialization
 Imports System.Reflection
-Imports System.Environment
-
-Imports System
-Imports System.Collections.Generic
-Imports System.Diagnostics
-Imports System.Runtime.InteropServices
-Imports System.Threading
 Imports EDICommon
 Public Class cadConverter
   Private AcadSheetSizes As Dictionary(Of String, String)
@@ -462,7 +449,7 @@ Public Class cadConverter
     Catch exception2 As System.Exception
     End Try
   End Sub
-  Private Function getTitleBlockName(ByVal acDoc As Document) As Boolean
+  Private Function getTitleBlockName(ByVal acDoc As Autodesk.AutoCAD.ApplicationServices.Document) As Boolean
     Dim flag As Boolean
     Try
       Dim database As Database = acDoc.Database
@@ -492,7 +479,7 @@ Public Class cadConverter
         lock.Dispose()
         flag = True
       End Using
-    Catch obj1 As system.Exception
+    Catch obj1 As System.Exception
       flag = False
     End Try
     Return flag

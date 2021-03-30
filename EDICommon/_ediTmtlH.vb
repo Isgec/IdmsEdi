@@ -377,6 +377,45 @@ Namespace SIS.EDI
       End Using
       Return Results
     End Function
+
+    Public Shared Function GetTmtlH(ByVal t_tran As String, Comp As String) As SIS.EDI.ediTmtlH
+      Dim Results As SIS.EDI.ediTmtlH = Nothing
+      Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
+        Using Cmd As SqlCommand = Con.CreateCommand()
+          Cmd.CommandType = CommandType.Text
+          Cmd.CommandText = "select * from tdmisg131" & Comp & " where t_tran='" & t_tran & "'"
+          Con.Open()
+          Dim Reader As SqlDataReader = Cmd.ExecuteReader()
+          If Reader.Read() Then
+            Results = New SIS.EDI.ediTmtlH(Reader)
+          End If
+          Reader.Close()
+        End Using
+      End Using
+      Return Results
+    End Function
+    <DataObjectMethod(DataObjectMethodType.Select)>
+    Public Shared Function GetediTmtlH(Comp As String) As List(Of SIS.EDI.ediTmtlH)
+      Dim Sql As String = ""
+      Sql &= " SELECT top 1 *  FROM tdmisg131" & Comp
+      Sql &= " WHERE t_edif IN (2,3) AND t_stat = 5  and t_isdt >= convert(datetime,'15/06/2018',103)"
+      Dim Results As List(Of SIS.EDI.ediTmtlH) = Nothing
+      Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
+        Using Cmd As SqlCommand = Con.CreateCommand()
+          Cmd.CommandType = CommandType.Text
+          Cmd.CommandText = Sql
+          Results = New List(Of SIS.EDI.ediTmtlH)()
+          Con.Open()
+          Dim Reader As SqlDataReader = Cmd.ExecuteReader()
+          While (Reader.Read())
+            Results.Add(New SIS.EDI.ediTmtlH(Reader))
+          End While
+          Reader.Close()
+        End Using
+      End Using
+      Return Results
+    End Function
+
     <DataObjectMethod(DataObjectMethodType.Select)>
     Public Shared Function ediTmtlHSelectList(ByVal StartRowIndex As Integer, ByVal MaximumRows As Integer, ByVal OrderBy As String, ByVal SearchState As Boolean, ByVal SearchText As String, ByVal t_tran As String) As List(Of SIS.EDI.ediTmtlH)
       Dim Results As List(Of SIS.EDI.ediTmtlH) = Nothing
@@ -503,6 +542,19 @@ Namespace SIS.EDI
       End Using
       Return Record
     End Function
+
+    Public Shared Function UpdateEdiF(t_tran As String, t_edif As Integer, Comp As String) As Boolean
+      Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
+        Using Cmd As SqlCommand = Con.CreateCommand()
+          Cmd.CommandType = CommandType.Text
+          Cmd.CommandText = " update tdmisg131" & Comp & " set t_edif=" & t_edif & " where t_tran='" & t_tran & "' "
+          Con.Open()
+          Cmd.ExecuteNonQuery()
+        End Using
+      End Using
+      Return True
+    End Function
+
     Public Sub New(ByVal Reader As SqlDataReader)
       Try
         For Each pi As System.Reflection.PropertyInfo In Me.GetType.GetProperties
@@ -538,10 +590,10 @@ Namespace SIS.EDI
     End Sub
     Public Sub New()
     End Sub
-    Public Shared Function GetHTML(ByVal TransmittalID As String) As String
+    Public Shared Function GetHTML(ByVal TransmittalID As String, Comp As String, Optional IncludeSTDDocWarning As Boolean = True) As String
       Dim form1 As New WebControls.Panel
       Dim t_tran As String = TransmittalID
-      Dim oVar As SIS.EDI.ediTmtlH = SIS.EDI.ediTmtlH.ediTmtlHGetByID(t_tran)
+      Dim oVar As SIS.EDI.ediTmtlH = SIS.EDI.ediTmtlH.GetTmtlH(t_tran, Comp)
       Dim oTblediWTmtlH As New Table
       oTblediWTmtlH.Width = 1000
       oTblediWTmtlH.GridLines = GridLines.Both
@@ -597,7 +649,7 @@ Namespace SIS.EDI
       oRowediWTmtlH.Cells.Add(oColediWTmtlH)
       oColediWTmtlH = New TableCell
       If oVar.t_cprj <> "" Then
-        oColediWTmtlH.Text = "[" & oVar.t_cprj & "] " & emp.GetProjectName(oVar.t_cprj)
+        oColediWTmtlH.Text = "[" & oVar.t_cprj & "] " & emp.GetProjectName(oVar.t_cprj, Comp)
       End If
       oColediWTmtlH.Style.Add("text-align", "left")
       oColediWTmtlH.ColumnSpan = "2"
@@ -610,7 +662,7 @@ Namespace SIS.EDI
       oRowediWTmtlH.Cells.Add(oColediWTmtlH)
       oColediWTmtlH = New TableCell
       If oVar.t_bpid <> "" Then
-        oColediWTmtlH.Text = "[" & oVar.t_bpid & "] " & emp.GetBPName(oVar.t_bpid)
+        oColediWTmtlH.Text = "[" & oVar.t_bpid & "] " & emp.GetBPName(oVar.t_bpid, Comp)
       End If
       oColediWTmtlH.Style.Add("text-align", "left")
       oColediWTmtlH.ColumnSpan = "2"
@@ -621,7 +673,7 @@ Namespace SIS.EDI
       oRowediWTmtlH.Cells.Add(oColediWTmtlH)
       oColediWTmtlH = New TableCell
       If oVar.t_ofbp <> "" Then
-        oColediWTmtlH.Text = "[" & oVar.t_ofbp & "] " & emp.GetBPName(oVar.t_ofbp)
+        oColediWTmtlH.Text = "[" & oVar.t_ofbp & "] " & emp.GetBPName(oVar.t_ofbp, Comp)
       End If
       oColediWTmtlH.Style.Add("text-align", "left")
       oColediWTmtlH.ColumnSpan = "2"
@@ -635,7 +687,7 @@ Namespace SIS.EDI
       oColediWTmtlH = New TableCell
       If oVar.t_logn <> "" Then
         Try
-          oColediWTmtlH.Text = "[" & oVar.t_logn & "] " & emp.GetEmp(oVar.t_logn).empName
+          oColediWTmtlH.Text = "[" & oVar.t_logn & "] " & emp.GetEmp(oVar.t_logn, Comp).empName
         Catch ex As Exception
         End Try
       End If
@@ -648,7 +700,7 @@ Namespace SIS.EDI
       oRowediWTmtlH.Cells.Add(oColediWTmtlH)
       oColediWTmtlH = New TableCell
       If oVar.t_dprj <> "" Then
-        oColediWTmtlH.Text = "[" & oVar.t_dprj & "] " & emp.GetProjectName(oVar.t_dprj)
+        oColediWTmtlH.Text = "[" & oVar.t_dprj & "] " & emp.GetProjectName(oVar.t_dprj, Comp)
       End If
       oColediWTmtlH.Style.Add("text-align", "left")
       oColediWTmtlH.ColumnSpan = "2"
@@ -660,7 +712,7 @@ Namespace SIS.EDI
       oColediWTmtlH.Font.Bold = True
       oRowediWTmtlH.Cells.Add(oColediWTmtlH)
       oColediWTmtlH = New TableCell
-      oColediWTmtlH.Text = emp.GetIssuedVia(oVar.t_issu)
+      oColediWTmtlH.Text = emp.GetIssuedVia(oVar.t_issu, Comp)
       oColediWTmtlH.Style.Add("text-align", "left")
       oColediWTmtlH.ColumnSpan = "5"
       oRowediWTmtlH.Cells.Add(oColediWTmtlH)
@@ -695,7 +747,7 @@ Namespace SIS.EDI
       oColediWTmtlH = New TableCell
       If oVar.t_user <> "" Then
         Try
-          oColediWTmtlH.Text = "[" & oVar.t_user & "] " & emp.GetEmp(oVar.t_user).empName
+          oColediWTmtlH.Text = "[" & oVar.t_user & "] " & emp.GetEmp(oVar.t_user, Comp).empName
         Catch ex As Exception
         End Try
       End If
@@ -720,7 +772,7 @@ Namespace SIS.EDI
       oColediWTmtlH = New TableCell
       If oVar.t_apsu <> "" Then
         Try
-          oColediWTmtlH.Text = "[" & oVar.t_apsu & "] " & emp.GetEmp(oVar.t_apsu).empName
+          oColediWTmtlH.Text = "[" & oVar.t_apsu & "] " & emp.GetEmp(oVar.t_apsu, Comp).empName
         Catch ex As Exception
         End Try
       End If
@@ -745,7 +797,7 @@ Namespace SIS.EDI
       oColediWTmtlH = New TableCell
       If oVar.t_isby <> "" Then
         Try
-          oColediWTmtlH.Text = "[" & oVar.t_isby & "] " & emp.GetEmp(oVar.t_isby).empName
+          oColediWTmtlH.Text = "[" & oVar.t_isby & "] " & emp.GetEmp(oVar.t_isby, Comp).empName
         Catch ex As Exception
         End Try
       End If
@@ -766,7 +818,7 @@ Namespace SIS.EDI
       Dim oTblediWTmtlD As Table = Nothing
       Dim oRowediWTmtlD As TableRow = Nothing
       Dim oColediWTmtlD As TableCell = Nothing
-      Dim oediWTmtlDs As List(Of SIS.EDI.ediTmtlD) = SIS.EDI.ediTmtlD.ediTmtlDSelectList(0, 9999, "", False, "", oVar.t_tran, "", "")
+      Dim oediWTmtlDs As List(Of SIS.EDI.ediTmtlD) = SIS.EDI.ediTmtlD.GetediTmtlD(Comp, oVar.t_tran)
       If oediWTmtlDs.Count > 0 Then
         Dim lbl As New System.Web.UI.WebControls.Label
         With lbl
@@ -776,7 +828,9 @@ Namespace SIS.EDI
           .Style.Add("margin-top", "15px")
           .Style.Add("margin-left", "10px")
         End With
-        form1.Controls.Add(lbl)
+        If IncludeSTDDocWarning Then
+          form1.Controls.Add(lbl)
+        End If
         Dim oTblhediWTmtlD As Table = New Table
         oTblhediWTmtlD.Width = 1000
         oTblhediWTmtlD.Style.Add("margin-top", "15px")
@@ -878,13 +932,13 @@ Namespace SIS.EDI
       Public Property empName As String = ""
       Public Property empEMail As String = ""
 
-      Public Shared Function GetEmp(ByVal empID As Integer) As emp
+      Public Shared Function GetEmp(ByVal empID As Integer, comp As String) As emp
         Dim mSql As String = ""
         mSql = mSql & " select "
         mSql = mSql & " emp1.t_nama as empName,"
         mSql = mSql & " bpe1.t_mail as empEMail "
-        mSql = mSql & " from ttccom001200 as emp1 "
-        mSql = mSql & " left outer join tbpmdm001200 as bpe1 on emp1.t_emno=bpe1.t_emno "
+        mSql = mSql & " from ttccom001" & comp & " as emp1 "
+        mSql = mSql & " left outer join tbpmdm001" & comp & " as bpe1 on emp1.t_emno=bpe1.t_emno "
         mSql = mSql & " where emp1.t_emno = '" & empID & "'"
         Dim tmp As emp = Nothing
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -906,11 +960,11 @@ Namespace SIS.EDI
         End Using
         Return tmp
       End Function
-      Public Shared Function GetProjectName(ByVal ProjectID As String) As String
+      Public Shared Function GetProjectName(ByVal ProjectID As String, comp As String) As String
         Dim mSql As String = ""
         mSql = mSql & " select top 1 "
         mSql = mSql & " t_dsca "
-        mSql = mSql & " from ttcmcs052200 "
+        mSql = mSql & " from ttcmcs052" & comp
         mSql = mSql & " where t_cprj = '" & ProjectID & "'"
         Dim tmp As String = ""
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -924,11 +978,11 @@ Namespace SIS.EDI
         Return tmp
       End Function
 
-      Public Shared Function GetBPName(ByVal BPID As String) As String
+      Public Shared Function GetBPName(ByVal BPID As String, Comp As String) As String
         Dim mSql As String = ""
         mSql = mSql & " select top 1 "
         mSql = mSql & " t_nama "
-        mSql = mSql & " from ttccom100200 "
+        mSql = mSql & " from ttccom100" & Comp & ""
         mSql = mSql & " where t_bpid = '" & BPID & "'"
         Dim tmp As String = ""
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -941,11 +995,11 @@ Namespace SIS.EDI
         End Using
         Return tmp
       End Function
-      Public Shared Function GetIssuedVia(ByVal IssueID As String) As String
+      Public Shared Function GetIssuedVia(ByVal IssueID As String, comp As String) As String
         Dim mSql As String = ""
         mSql = mSql & " select top 1 "
         mSql = mSql & " t_dsca "
-        mSql = mSql & " from tdmisg125200 "
+        mSql = mSql & " from tdmisg125" & comp & ""
         mSql = mSql & " where t_issu = '" & IssueID & "'"
         Dim tmp As String = ""
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
@@ -959,11 +1013,11 @@ Namespace SIS.EDI
         Return tmp
       End Function
 
-      Public Shared Function GetReceiptCreator(ByVal tmtlID As String) As String
+      Public Shared Function GetReceiptCreator(ByVal tmtlID As String, comp As String) As String
         Dim mSql As String = ""
         mSql = mSql & " select "
         mSql = mSql & " t_user as [user] "
-        mSql = mSql & " from tdmisg134200 "
+        mSql = mSql & " from tdmisg134" & comp & ""
         mSql = mSql & " where t_trno = '" & tmtlID & "'"
         Dim tmp As String = ""
         Using Con As SqlConnection = New SqlConnection(EDICommon.DBCommon.GetBaaNConnectionString())
